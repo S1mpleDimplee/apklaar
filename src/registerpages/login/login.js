@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+import './login.css';
+import { useNavigate } from 'react-router-dom';
+
+const Login = () => {
+  const [formData, setFormData] = useState({
+    username: '',
+    password: ''
+  });
+
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Handle login logic here
+    console.log('Login attempt:', formData);
+    // You can add your authentication logic here
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-card">
+          <h2 className="login-title">Inloggen</h2>
+          <div className="title-underline"></div>
+          
+          <div className="login-form">
+            <div className="form-group">
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                placeholder="Bijv. Klaas van den Hof"
+                className="form-input"
+              />
+              <label className="form-label">
+                Vaar hier uw voor en achternaam in (inclusief tussenvoegsels)
+              </label>
+            </div>
+
+            <div className="form-group">
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="EenSterkWachtwoord123"
+                className="form-input"
+              />
+              <label className="form-label">
+                Herhaal hier uw wachtwoord
+              </label>
+            </div>
+
+            <button onClick={handleSubmit} className="login-button">
+              Inloggen
+            </button>
+
+            <div className="login-footer">
+              <button className="forgot-password-link" onClick={() => navigate('/registreren')}>
+                Ik heb al een account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

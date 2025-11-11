@@ -1,0 +1,324 @@
+/* Homepage.css */
+.homepage {
+  min-height: 100vh;
+}
+
+/* Hero Section */
+.hero {
+  background: linear-gradient(rgba(15, 118, 110, 0.7), rgba(13, 148, 136, 0.6)), 
+              url('../../media//home-background.webp') center/cover no-repeat;
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.hero-overlay {
+  background: rgba(0, 0, 0, 0.2); /* Slight dark overlay for better text readability */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.hero-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  width: 100%;
+}
+
+.hero-content {
+  max-width: 600px;
+}
+
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-description {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.cta-button {
+  background-color: #fbbf24; /* yellow-400 */
+  color: #1f2937; /* gray-800 */
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(251, 191, 36, 0.4);
+}
+
+.cta-button:hover {
+  background-color: #f59e0b; /* yellow-500 */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* Process Section */
+.process-section {
+  padding: 5rem 0;
+  background-color: #f8fafc;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  color: #6b7c02; /* olive green */
+  text-align: center;
+  margin-bottom: 3rem;
+  font-weight: 600;
+}
+
+.process-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.step {
+  flex: 1;
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.step-card {
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  height: 100%;
+  color: white;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+}
+
+.step-teal {
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
+.step-yellow {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #1f2937;
+}
+
+.step-green {
+  background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.step-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.step-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.step-description {
+  font-size: 1rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Tarieven Section */
+.tarieven-section {
+  padding: 5rem 0;
+  background-color: white;
+}
+
+.tarieven-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.tarief-card {
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tarief-card:hover {
+  border-color: #0f766e;
+  box-shadow: 0 12px 25px rgba(15, 118, 110, 0.15);
+  transform: translateY(-3px);
+}
+
+.tarief-card.populair {
+  border-color: #0f766e;
+  box-shadow: 0 8px 25px rgba(15, 118, 110, 0.2);
+}
+
+.populair-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ef4444;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.tarief-service {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.tarief-prijs {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #0f766e;
+  margin-bottom: 1.5rem;
+}
+
+.tarief-button {
+  background-color: #0f766e;
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.tarief-button:hover {
+  background-color: #0d9488;
+  transform: translateY(-1px);
+}
+
+.tarieven-note {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.tarieven-note p {
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 5rem 0;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: white;
+}
+
+.cta-content {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cta-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.cta-description {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.cta-button-large {
+  background-color: #fbbf24;
+  color: #1f2937;
+  padding: 1.25rem 3rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+}
+
+.cta-button-large:hover {
+  background-color: #f59e0b;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(251, 191, 36, 0.6);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-description {
+    font-size: 1.1rem;
+  }
+  
+  .section-title {
+    font-size: 2rem;
+  }
+  
+  .process-steps {
+    flex-direction: column;
+  }
+  
+  .arrow {
+    transform: rotate(90deg);
+    margin: 1rem 0;
+  }
+  
+  .tarieven-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .cta-title {
+    font-size: 2rem;
+  }
+  
+  .container {
+    padding: 0 1rem;
+  }
+}

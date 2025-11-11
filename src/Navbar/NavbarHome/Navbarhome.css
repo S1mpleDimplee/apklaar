@@ -1,0 +1,136 @@
+/* Header.css */
+.header {
+  background-color: #f8fafc; /* Light gray background */
+  border-bottom: 1px solid #e2e8f0;
+  padding: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.header-dark {
+  background-color: #004C64 !important; /* Dark teal background */
+  border-bottom: 1px solid #0f766e;
+  padding: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: white;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Logo Styling */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  font-size: 1.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.apk-text {
+  background-color: #0f766e; /* Teal background */
+  color: white;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.125rem;
+  font-weight: bold;
+  border-radius: 2px;
+}
+
+.klaar-text {
+  color: #0f766e; /* Teal text color */
+  font-weight: bold;
+  font-style: italic;
+}
+
+/* Navigation Styling */
+.navigation {
+  display: flex;
+  align-items: center;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 2rem;
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-button {
+    border: none;
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+}
+
+.nav-link {
+  color: #0f766e; /* Teal color */
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+  transition: color 0.2s ease, border-bottom 0.2s ease;
+  border-bottom: 2px solid transparent;
+}
+
+.nav-link:hover {
+  color: #0d9488; /* Slightly lighter teal on hover */
+  border-bottom: 2px solid #0f766e;
+}
+
+.nav-link:active,
+.nav-link.active {
+  color: #0f766e;
+  border-bottom: 2px solid #0f766e;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .header-container {
+    padding: 0 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .logo-text {
+    font-size: 1.5rem;
+  }
+  
+  .nav-list {
+    gap: 1.5rem;
+    justify-content: center;
+  }
+  
+  .nav-link {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-list {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header {
+    padding: 0.75rem 0;
+  }
+  
+  .logo-text {
+    font-size: 1.4rem;
+  }
+}
