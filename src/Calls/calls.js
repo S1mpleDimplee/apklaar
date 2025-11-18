@@ -1,8 +1,8 @@
 
-const postCall = async (usedFunction, dataSend) => {
+const apiCall = async (usedFunction, dataSend) => {
     try {
         const response = await fetch(
-            "http://localhost/tandartspraktijkBackend/router/router.php",
+            "http://localhost/APKlaarAPI/router/router.php",
             {
                 method: "POST",
                 body: JSON.stringify({
@@ -35,4 +35,4 @@ const postCall = async (usedFunction, dataSend) => {
         };
     }
 };
-export default postCall;
+export default apiCall;
