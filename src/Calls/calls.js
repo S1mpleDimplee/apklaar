@@ -35,4 +35,4 @@ const apiCall = async (usedFunction, dataSend) => {
         };
     }
 };
-export default postCall;
+export default apiCall;
