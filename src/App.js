@@ -20,15 +20,24 @@ import NavbarHome from "./Navbar/NavbarHome/Navbarhome";
 import Register from "./registerpages/register/register";
 import Login from "./registerpages/login/login";
 import Verify from "./registerpages/emailverify/verify";
+import DashboardKlant from "./CustomerDashboard/Dashboard/Dashboard";
+import CarDetails from "./CustomerDashboard/CarDetails/CarDetails";
+import CustomerNotifications from "./CustomerDashboard/Notifications/Notifications";
+import MechanicDashboard from "./MechanicDashboard/Dashboard/Dashboard";
+import MechanicTimeTable from "./MechanicDashboard/TimeTable/TimeTable";
+import AppointmentInfo from "./MechanicDashboard/AppointmentInfo/AppointmentInfo";
+import ManagerDashboard from "./ManagerDashboard/Dashboard/Dashboard";
+import ManagerInvoices from "./ManagerDashboard/Invoices/invoices";
+import ManagerTimeTable from "./ManagerDashboard/TimeTable/TimeTable";
 
 // Inner component that uses useLocation
 function AppContent() {
   const location = useLocation();
   const [isPatientDashboard, setIsPatientDashboard] = useState(false);
-  const patientDashboardUrls = ["/dashboard", "/dashboard-tandarts", "/dashboard/rooster", "/dashboard/profile", "/dashboard/patienten",
+  const patientDashboardUrls = ["/dashboard", "/dashboard", "/dashboard/rooster", "/dashboard/profile", "/dashboard/patienten",
     "/dashboard/gebruikers",];
 
-  const [currentRole, setCurrentRole] = useState(null);
+  const [currentRole, setCurrentRole] = useState(0);
   const nonLoggedInUrls = ["/", "/inloggen", "/registreren"];
   const isNonLoggedIn = nonLoggedInUrls.includes(location.pathname);
 
@@ -107,30 +116,33 @@ function AppContent() {
             <Route path="/inloggen/verify" element={<Verify />} />
             {/* <Route path="*" element={<NotFound />} /> */}
 
-            {/* Patient Dashboard routes */}
-            {/* {currentRole === 0 && ( */}
-              {/* <> */}
-                {/* <Route path="/dashboard" element={<DashboardPatient />} /> */}
-                {/* <Route path="/dashboard/profile" element={<PatientProfile />} /> */}
-              {/* </> */}
-            {/* )} */}
+            {/* Customer Dashboard routes */}
+            {currentRole === 0 && (
+              <>
+                <Route path="/dashboard" element={<DashboardKlant />} />
+                <Route path="/dashboard/mijnauto" element={<CarDetails />} />
+                <Route path="/dashboard/berichten" element={<CustomerNotifications />} />
+              </>
+            )}
 
-            {/* Dentist Dashboard routes */}
-            {/* {currentRole === 1 && ( */}
-              {/* <>
-                <Route path="/dashboard" element={<DashboardTandarts />} />
-                <Route path="/dashboard/patienten" element={<DentistUsers />} />
-                <Route path="/dashboard/rooster" element={<DentisTimetable />} />
-              {/* </> */}
-            {/* )} */}
+            {/* Mechanic Dashboard routes */}
+            {currentRole === 1 && (
+              <>
+                <Route path="/dashboard" element={<MechanicDashboard />} />
+                <Route path="/dashboard/rooster" element={<MechanicTimeTable />} />
+                <Route path="/dashboard/rooster/afspraakinformatie" element={<AppointmentInfo />} />
+              </>
+            )}
 
             {/* Manager Dashboard route */}
-            {/* {currentRole === 3 && (
+            {currentRole === 2 && (
               <>
-                <Route path="/dashboard" element={<UserInfo />} />
-                <Route path="/dashboard/gebruikers" element={<UserPage />} />
-              {/* </> */}
-            {/* )} */}
+                <Route path="/dashboard" element={<ManagerDashboard />} />
+                <Route path="/dashboard/facturen" element={<ManagerInvoices />} />
+                <Route path="/dashboard/rooster" element={<ManagerTimeTable />} />
+                {/* <Route path="/dashboard/gebruikers" element={<ManagerUsers />} /> */}
+              </>
+            )}
 
           </Routes>
         </main>
