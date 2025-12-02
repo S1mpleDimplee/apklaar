@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "./Navbarhome.css";
 import apklaarlogo from "../../media/apklaar-blue-black.webp";
 import apklaarwhite from "../../media/apklaar-white.webp";
@@ -7,14 +7,17 @@ import { useNavigate } from "react-router-dom";
 const NavbarHome = () => {
   const loginpages = ["/inloggen", "/registreren", "/inloggen/verify"];
 
+  const isLoginPage = loginpages.includes(window.location.pathname);
+
+
   const navigate = useNavigate();
   return (
-    <header className={loginpages ? "header" : "header-dark"}>
+    <header className={isLoginPage ? "header" : "header-dark"}>
       <div className="header-container">
         {/* Logo */}
         <div className="logo">
           <span className="logo-text">
-            <img src={loginpages ? apklaarwhite : apklaarlogo} alt="APKlaar Logo" width={"120px"} />
+            <img src={!isLoginPage ? apklaarwhite : apklaarlogo} alt="APKlaar Logo" width={"120px"} />
           </span>
         </div>
 
