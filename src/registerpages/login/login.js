@@ -6,7 +6,7 @@ import { useToast } from "../../toastmessage/toastmessage";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
@@ -22,7 +22,7 @@ const Login = () => {
   };
 
   const handleSubmit = (e) => {
-    const response = apiCall("addUser", formData);
+    const response = apiCall("loginuser", formData);
     if (response.isSuccess) {
       openToast(response.message);
     } else {
@@ -41,8 +41,8 @@ const Login = () => {
             <div className="form-group">
               <input
                 type="text"
-                name="username"
-                value={formData.username}
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 placeholder="Bijv. Klaas van den Hof"
                 className="form-input-login"
