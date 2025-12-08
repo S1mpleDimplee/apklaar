@@ -1,4 +1,5 @@
 import React, { useState, useMemo, createContext, useContext } from "react";
+import { createPortal } from 'react-dom';
 import './toastmessage.css';
 
 function ToastMessage({ message, close }) {
@@ -42,15 +43,19 @@ export function ToastProvider({ children }) {
     return (
         <ToastProviderContext.Provider value={contextValue}>
             {children}
-            <div className="toast-container">
-                {toasts.map((toast) => (
-                    <ToastMessage
-                        key={toast.id}
-                        message={toast.message}
-                        close={() => closeToast(toast.id, setToasts)}
-                    />
-                ))}
-            </div>
+            {/* Use createPortal to render toasts directly to document.body */}
+            {createPortal(
+                <div className="toast-container">
+                    {toasts.map((toast) => (
+                        <ToastMessage
+                            key={toast.id}
+                            message={toast.message}
+                            close={() => closeToast(toast.id, setToasts)}
+                        />
+                    ))}
+                </div>,
+                document.body
+            )}
         </ToastProviderContext.Provider>
     );
 }

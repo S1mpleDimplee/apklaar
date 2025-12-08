@@ -1,27 +1,33 @@
-import React, { useState } from 'react';
-import './login.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import "./login.css";
+import { useNavigate } from "react-router-dom";
+import apiCall from "../../Calls/calls";
+import { useToast } from "../../toastmessage/toastmessage";
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    username: '',
-    password: ''
+    email: "",
+    password: "",
   });
+
+  const {openToast} = useToast();
 
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', formData);
-    // You can add your authentication logic here
+    const response = apiCall("loginuser", formData);
+    if (response.isSuccess) {
+      openToast(response.message);
+    } else {
+      openToast(response.message);
+    }
   };
 
   return (
@@ -30,18 +36,18 @@ const Login = () => {
         <div className="login-card">
           <h2 className="login-title">Inloggen</h2>
           <div className="title-underline"></div>
-          
+
           <div className="login-form">
             <div className="form-group">
               <input
                 type="text"
-                name="username"
-                value={formData.username}
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
                 placeholder="Bijv. Klaas van den Hof"
-                className="form-input"
+                className="form-input-login"
               />
-              <label className="form-label">
+              <label className="form-label-login">
                 Vaar hier uw voor en achternaam in (inclusief tussenvoegsels)
               </label>
             </div>
@@ -53,9 +59,9 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="EenSterkWachtwoord123"
-                className="form-input"
+                className="form-input-login"
               />
-              <label className="form-label">
+              <label className="form-label-login">
                 Herhaal hier uw wachtwoord
               </label>
             </div>
@@ -65,7 +71,10 @@ const Login = () => {
             </button>
 
             <div className="login-footer">
-              <button className="forgot-password-link" onClick={() => navigate('/registreren')}>
+              <button
+                className="forgot-password-link"
+                onClick={() => navigate("/registreren")}
+              >
                 Ik heb al een account
               </button>
             </div>
