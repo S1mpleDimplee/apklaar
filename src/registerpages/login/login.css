@@ -10,7 +10,7 @@
 
 .login-container {
   width: 100%;
-  max-width: 450px;
+  max-width: 600px;
 }
 
 .login-card {
@@ -49,35 +49,32 @@
   gap: 0.5rem;
 }
 
-.form-input {
-  width: 100%;
-  padding: 1rem 1.25rem;
-  border: 2px solid #e5e7eb;
+.form-input-login {
+ width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid #727c36;
   border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
-  background-color: #f9fafb;
-  color: #374151;
+  color: #000000;
   box-sizing: border-box;
 }
 
-.form-input:focus {
+.form-input-login:focus {
   outline: none;
-  border-color: #0f766e;
   background-color: white;
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
 }
 
-.form-input::placeholder {
-  color: #9ca3af;
-  font-size: 0.95rem;
+.form-input-login::placeholder {
+  color: #585b60;
+  font-size: 0.9rem;
 }
 
-.form-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  line-height: 1.4;
-  margin-top: 0.25rem;
+.form-label-login {
+  font-size: 0.75rem;
+  color: #242527;
+  line-height: 1;
+  font-weight: 600;
 }
 
 .login-button {
@@ -91,7 +88,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   box-shadow: 0 4px 14px rgba(251, 191, 36, 0.3);
 }
 
@@ -107,7 +104,7 @@
 
 .login-footer {
   text-align: center;
-  margin-top: 1.5rem;
+  margin-top: -1rem;
 }
 
 .forgot-password-link {
@@ -124,41 +121,4 @@
 .forgot-password-link:hover {
   color: #0d9488;
   text-decoration: underline;
-}
-
-/* Responsive Design */
-@media (max-width: 480px) {
-  .login-page {
-    padding: 1rem;
-  }
-  
-  .login-card {
-    padding: 2rem 1.5rem;
-  }
-  
-  .login-title {
-    font-size: 1.5rem;
-  }
-  
-  .form-input {
-    padding: 0.875rem 1rem;
-    font-size: 0.95rem;
-  }
-  
-  .login-button {
-    padding: 0.875rem;
-    font-size: 1rem;
-  }
-}
-
-/* Loading state (optional enhancement) */
-.login-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.login-button:disabled:hover {
-  transform: none;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
 }

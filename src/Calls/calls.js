@@ -2,7 +2,7 @@
 const apiCall = async (usedFunction, dataSend) => {
     try {
         const response = await fetch(
-            "http://localhost/APKlaarAPI/router/router.php",
+            "http://localhost/apklaarAPI/router/router.php",
             {
                 method: "POST",
                 body: JSON.stringify({
