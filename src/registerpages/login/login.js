@@ -23,8 +23,10 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     const response = apiCall("loginuser", formData);
+
     if (response.isSuccess) {
       openToast(response.message);
+      localStorage.setItem("userdata", response.data);
       setTimeout(() => {
         navigate("/dashboard");
       }, 500);
