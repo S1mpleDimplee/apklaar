@@ -1,126 +1,124 @@
 import React from "react";
 import "./Sidebar.css";
+import dashboard from "./media/dashboard.svg"
+import car from "./media/car.svg"
+import invoice from "./media/invoice.svg"
+import notification from "./media/notification.svg"
+import calendar from "./media/notification.svg"
 
 const Sidebar = ({ userRole, onNavigate, currentPath }) => {
   // Define menu items for different roles
   const menuItems = {
     // Customer (role 0)
-    0: [
+    1: [
       {
         id: "dashboard",
         label: "Dashboard",
-        icon: "📊",
+        image: dashboard,
         path: "/dashboard",
         description: "Overzicht van uw account",
       },
       {
         id: "mijnauto",
         label: "Mijn auto(s)",
-        icon: "🚗",
+        image: car,
         path: "/dashboard/mijnauto",
         description: "Voertuig informatie",
       },
       {
-        id: "afspraken",
-        label: "Afspraken",
-        icon: "📅",
-        path: "/dashboard/afspraken",
-        description: "Uw geplande afspraken",
-      },
-      {
         id: "facturen",
         label: "Facturen",
-        icon: "🧾",
+        image: invoice,
         path: "/dashboard/facturen",
         description: "Uw factuuroverzicht",
       },
       {
         id: "berichten",
         label: "Berichten",
-        icon: "📧",
+        image: notification,
         path: "/dashboard/berichten",
         description: "Notificaties en berichten",
       },
     ],
     // Mechanic (role 1)
-    1: [
+    2: [
       {
         id: "dashboard",
         label: "Dashboard",
-        icon: "📊",
+        image: dashboard,
         path: "/dashboard",
         description: "Werkdag overzicht",
       },
       {
         id: "rooster",
         label: "Afspraken",
-        icon: "📅",
+        image: calendar,
         path: "/dashboard/rooster",
         description: "Uw werkrooster",
       },
       {
         id: "klanten",
         label: "Klanten",
-        icon: "👥",
+        image: "👥",
         path: "/dashboard/klanten",
         description: "Klantinformatie",
       },
       {
         id: "rapporten",
         label: "Rapporten",
-        icon: "📋",
+        image: "📋",
         path: "/dashboard/rapporten",
         description: "Werk rapporten",
       },
       {
         id: "berichten",
         label: "Berichten",
-        icon: "📧",
+        image: notification,
         path: "/dashboard/berichten",
         description: "Mededelingen",
       },
     ],
     // Manager (role 2)
-    2: [
+    3: [
       {
         id: "dashboard",
         label: "Dashboard",
-        icon: "📊",
+        image: dashboard,
         path: "/dashboard",
         description: "Bedrijfsoverzicht",
       },
       {
         id: "afspraken",
         label: "Afspraken",
-        icon: "📅",
+        image: calendar,
         path: "/dashboard/rooster",
         description: "Alle afspraken beheren",
       },
       {
         id: "facturen",
         label: "Facturen",
-        icon: "🧾",
+        image: invoice,
         path: "/dashboard/facturen",
         description: "Factuur management",
       },
       {
         id: "gebruikers",
         label: "Gebruikers",
-        icon: "👥",
+        image: "👥",
         path: "/dashboard/gebruikers",
         description: "Personeel beheer",
       },
       {
         id: "rapporten",
         label: "Rapporten",
-        icon: "📈",
+        image: "📈",
         path: "/dashboard/rapporten",
         description: "Business intelligence",
       },
       {
         id: "instellingen",
         label: "Instellingen",
-        icon: "⚙️",
+        image: "⚙️",
         path: "/dashboard/instellingen",
         description: "Systeembeheer",
       },
@@ -178,13 +176,12 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
         {currentMenuItems.map((item) => (
           <div
             key={item.id}
-            className={`sidebar-nav-item ${
-              isActive(item.path) ? "active" : ""
-            }`}
+            className={`sidebar-nav-item ${isActive(item.path) ? "active" : ""
+              }`}
             onClick={() => handleNavigation(item.path)}
             title={item.description}
           >
-            <span className="sidebar-nav-icon">{item.icon}</span>
+            <img className="sidebar-nav-icon" src={item.image} />
             <span className="sidebar-nav-label">{item.label}</span>
           </div>
         ))}

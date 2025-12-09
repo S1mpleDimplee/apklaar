@@ -21,12 +21,12 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    const response = apiCall("loginuser", formData);
+  const handleSubmit = async (e) => {
+    const response = await apiCall("loginuser", formData);
 
     if (response.isSuccess) {
       openToast(response.message);
-      localStorage.setItem("userdata", response.data);
+      localStorage.setItem("userdata", JSON.stringify(response.data));
       setTimeout(() => {
         navigate("/dashboard");
       }, 500);
