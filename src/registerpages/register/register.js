@@ -20,7 +20,7 @@ const Register = () => {
   });
 
 
-  const {openToast} = useToast();
+  const { openToast } = useToast();
   const [countryCode, setCountryCode] = useState("+31");
 
   const navigate = useNavigate();
@@ -44,6 +44,9 @@ const Register = () => {
 
     if (response.isSuccess) {
       openToast(response.message);
+      setTimeout(() => {
+        navigate("/inloggen");
+      }, 500);
     }
     else {
       openToast(response.message);
@@ -62,7 +65,7 @@ const Register = () => {
             <div className="form-columns">
               {/* Left Column - Personal Information */}
               <div className="form-column personal-info">
-                
+
                 <div className="form-group">
                   <input
                     type="text"
@@ -147,7 +150,7 @@ const Register = () => {
 
               {/* Right Column - Address Information */}
               <div className="form-column address-info">
-                
+
                 <div className="form-group">
                   <input
                     type="text"

@@ -10,7 +10,7 @@ const Login = () => {
     password: "",
   });
 
-  const {openToast} = useToast();
+  const { openToast } = useToast();
 
   const navigate = useNavigate();
 
@@ -25,6 +25,9 @@ const Login = () => {
     const response = apiCall("loginuser", formData);
     if (response.isSuccess) {
       openToast(response.message);
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
     } else {
       openToast(response.message);
     }
