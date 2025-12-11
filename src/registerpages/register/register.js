@@ -42,8 +42,16 @@ const Register = () => {
       phonenumber: countryCode + formData.phonenumber,
     });
 
+
+
     if (response.isSuccess) {
       openToast(response.message);
+
+      apiCall("sendverificationcode", {
+        email: formData.email,
+        name: formData.firstname,
+      });
+
       setTimeout(() => {
         navigate("/verificatie");
       }, 500);

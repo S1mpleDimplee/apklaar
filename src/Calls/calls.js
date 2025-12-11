@@ -5,6 +5,10 @@ const apiCall = async (usedFunction, dataSend) => {
             "http://localhost/apklaarAPI/router/router.php",
             {
                 method: "POST",
+                credentials: "include", // dit zorgt voor dat cookies meegestuurd worden (voor sessions blijkbaar)
+                headers: {
+                    "Content-Type": "application/json",
+                },
                 body: JSON.stringify({
                     function: usedFunction,
                     data: dataSend,
