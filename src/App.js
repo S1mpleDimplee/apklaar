@@ -25,12 +25,13 @@ import ManagerDashboard from "./ManagerDashboard/Dashboard/Dashboard";
 import ManagerInvoices from "./ManagerDashboard/Invoices/invoices";
 import ManagerTimeTable from "./ManagerDashboard/TimeTable/TimeTable";
 import Sidebar from "./Navbar/SidebarDashboard/Sidebar"; // Import the new Sidebar component
+import NavbarDashboard from "./Navbar/NavbarDashboard/NavbarDashboard";
 
 // Inner component that uses useLocation
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isPatientDashboard, setIsPatientDashboard] = useState(false);
+  const [isDashboard, setIsDashboard] = useState(false);
   const [currentRole, setCurrentRole] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -53,21 +54,21 @@ function AppContent() {
     "/",
     "/inloggen",
     "/registreren",
-    "/inloggen/verify",
+    "/verificatie",
   ];
   const isNonLoggedIn = nonLoggedInUrls.includes(location.pathname);
-  const loginpages = ["/inloggen", "/registreren", "/inloggen/verify"];
+  const loginpages = ["/inloggen", "/registreren", "/verificatie"];
 
   // const { openToast } = useToast();
 
   useEffect(() => {
     // Check if user is logged in and get their role
     checkUserLoginStatus();
-    setIsPatientDashboard(dashboardUrls.includes(location.pathname));
+    setIsDashboard(dashboardUrls.includes(location.pathname));
   }, [location.pathname]);
 
   const checkUserLoginStatus = () => {
-    const loggedInData = JSON.parse(localStorage.getItem("loggedInData"));
+    const loggedInData = JSON.parse(localStorage.getItem("userdata"));
     if (loggedInData) {
       setIsLoggedIn(true);
       setCurrentRole(parseInt(loggedInData.role));
@@ -116,12 +117,12 @@ function AppContent() {
   return (
     <div className="app-container">
       {/* Navbar at the top */}
-      <NavbarHome />
+      {!isDashboard && <NavbarHome />}
 
       {/* Content area with sidebar and main content */}
       <div className="content-wrapper">
         {/* Sidebar - only show when logged in and on dashboard pages */}
-        {isLoggedIn && isPatientDashboard && (
+        {isLoggedIn && isDashboard && (
           <Sidebar
             userRole={currentRole}
             onNavigate={handleSidebarNavigation}
@@ -129,43 +130,38 @@ function AppContent() {
           />
         )}
 
-        {/* Main content area */}
+        {/* Main content area with dashboard navbar inside */}
         <main
-          className={`main-content ${
-            isLoggedIn && isPatientDashboard ? "dashboard-main-content" : ""
-          }`}
+          className={`main-content ${isLoggedIn && isDashboard ? "dashboard-main-content" : ""
+            }`}
         >
+          {/* Dashboard Navbar - show inside main content area next to sidebar */}
+          {isLoggedIn && isDashboard && <NavbarDashboard />}
+
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
             <Route path="/registreren" element={<Register />} />
             <Route path="/inloggen" element={<Login />} />
-            <Route path="/inloggen/verify" element={<Verify />} />
-            {/* <Route path="*" element={<NotFound />} /> */}
+            <Route path="/verificatie" element={<Verify />} />
 
             {/* Protected Dashboard routes - only accessible when logged in */}
             {isLoggedIn && (
               <>
-                {/* Customer Dashboard routes (role 0) */}
-                {currentRole === 0 && (
+                {/* Customer Dashboard routes (role 1) */}
+                {currentRole === 1 && (
                   <>
                     <Route path="/dashboard" element={<DashboardKlant />} />
-                    <Route
-                      path="/dashboard/mijnauto"
-                      element={<CarDetails />}
-                    />
+                    <Route path="/dashboard/mijnauto" element={<CarDetails />} />
                     <Route
                       path="/dashboard/berichten"
                       element={<CustomerNotifications />}
                     />
-                    {/* Add more customer routes as needed */}
-                    {/* <Route path="/dashboard/afspraken" element={<CustomerAppointments />} />
-                    <Route path="/dashboard/facturen" element={<CustomerInvoices />} /> */}
                   </>
                 )}
 
-                {/* Mechanic Dashboard routes (role 1) */}
-                {currentRole === 1 && (
+                {/* Mechanic Dashboard routes (role 2) */}
+                {currentRole === 2 && (
                   <>
                     <Route path="/dashboard" element={<MechanicDashboard />} />
                     <Route
@@ -176,15 +172,11 @@ function AppContent() {
                       path="/dashboard/rooster/afspraakinformatie"
                       element={<AppointmentInfo />}
                     />
-                    {/* Add more mechanic routes as needed */}
-                    {/* <Route path="/dashboard/klanten" element={<MechanicCustomers />} />
-                    <Route path="/dashboard/rapporten" element={<MechanicReports />} />
-                    <Route path="/dashboard/berichten" element={<MechanicNotifications />} /> */}
                   </>
                 )}
 
-                {/* Manager Dashboard routes (role 2) */}
-                {currentRole === 2 && (
+                {/* Manager Dashboard routes (role 3) */}
+                {currentRole === 3 && (
                   <>
                     <Route path="/dashboard" element={<ManagerDashboard />} />
                     <Route
@@ -195,10 +187,6 @@ function AppContent() {
                       path="/dashboard/rooster"
                       element={<ManagerTimeTable />}
                     />
-                    {/* Add more manager routes as needed */}
-                    {/* <Route path="/dashboard/gebruikers" element={<ManagerUsers />} />
-                    <Route path="/dashboard/rapporten" element={<ManagerReports />} />
-                    <Route path="/dashboard/instellingen" element={<ManagerSettings />} /> */}
                   </>
                 )}
               </>
@@ -209,7 +197,7 @@ function AppContent() {
 
       {/* Footer */}
       <footer className="footer">
-        {!(isPatientDashboard || loginpages.includes(location.pathname)) && (
+        {!(isDashboard || loginpages.includes(location.pathname)) && (
           <Footer />
         )}
       </footer>
