@@ -34,37 +34,20 @@ const CustomerNotifications = () => {
   ]);
 
   return (
-    <div className="notifications-container">
-      {/* Header */}
-      <div className="notifications-header">
-        <div className="notifications-breadcrumb">
-          <span>Home</span>
-          <span className="notifications-separator">/</span>
-          <span>Berichten</span>
-        </div>
-        
-        <div className="notifications-user-info">
-          <div className="notifications-user-avatar"></div>
-          <span className="notifications-user-name">Edward robinson</span>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="notifications-main-content">
-        <div className="notifications-content-area">
-          <div className="notifications-list">
-            {notifications.map((notification) => (
-              <div key={notification.id} className="notification-card">
-                <div className="notification-content">
-                  <div className="notification-title-row">
-                    <h3 className="notification-title">{notification.title}</h3>
-                    <span className="notification-timestamp">{notification.timestamp}</span>
-                  </div>
-                  <p className="notification-message">{notification.message}</p>
+    <div className="notifications-main-content">
+      <div className="notifications-content-area">
+        <div className="notifications-list">
+          {notifications.map((notification) => (
+            <div key={notification.id} className="notification-card">
+              <div className="notification-content">
+                <div className="notification-title-row">
+                  <h3 className="notification-title">{notification.title}</h3>
+                  <span className="notification-timestamp">{notification.timestamp}</span>
                 </div>
+                <p className="notification-message">{notification.message}</p>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

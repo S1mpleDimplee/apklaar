@@ -1,7 +1,7 @@
 /* Verification.css */
 .verification-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  background: #004C64;
   display: flex;
   align-items: center;
   justify-content: center;

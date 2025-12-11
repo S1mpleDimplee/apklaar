@@ -1,36 +1,48 @@
-body {
-  background-color: #181c2c !important;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin: 0;
-  height: 100%;
-}
-
-.content-wrapper {
+/* App Container */
+.app-container {
   display: flex;
-  flex: 1;
-  overflow: hidden;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.main-content {
-  flex: 1;
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #e5e5e5;
 }
 
 .dashboard-main-content {
+  background-color: #e5e5e5;
+}
+
+
+/* Content Wrapper - holds sidebar and main content */
+.content-wrapper {
+  display: flex;
   flex: 1;
-  padding: 2rem;
 }
 
-
-.dashboard-sidebar {
-  background-color: #f8f9fa;
-  width: 200px;
-  min-height: calc(100vh - 60px);
-  border-right: 1px solid #e0e0e0;
-  flex-shrink: 0;
-  position: relative;
-}
-
-.navbar-dashboard {
-  height: 60px;
+/* Main Content Area */
+.main-content {
+  flex: 1;
   width: 100%;
+}
+
+/* Dashboard Main Content - when sidebar is present */
+
+
+/* Footer */
+.footer {
+  width: 100%;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .dashboard-main-content {
+    min-height: auto;
+  }
 }

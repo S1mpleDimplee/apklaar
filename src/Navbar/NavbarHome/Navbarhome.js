@@ -5,7 +5,7 @@ import apklaarwhite from "../../media/apklaar-white.webp";
 import { useNavigate } from "react-router-dom";
 
 const NavbarHome = () => {
-  const loginpages = ["/inloggen", "/registreren", "/inloggen/verify"];
+  const loginpages = ["/inloggen", "/registreren", "/verificatie"];
 
   const isLoginPage = loginpages.includes(window.location.pathname);
 
