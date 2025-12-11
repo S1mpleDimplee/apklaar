@@ -42,10 +42,14 @@ const Register = () => {
       phonenumber: countryCode + formData.phonenumber,
     });
 
-
-
     if (response.isSuccess) {
       openToast(response.message);
+
+      localStorage.setItem("verificationinfo", JSON.stringify({
+        email: formData.email,
+        userid: response.userid,
+        name: formData.firstname
+      }));
 
       apiCall("sendverificationcode", {
         email: formData.email,

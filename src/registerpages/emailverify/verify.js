@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './verify.css';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../toastmessage/toastmessage';
 import apiCall from '../../Calls/calls';
 
-const Verify = ({ email = "Emailadress@gmail.com" }) => {
+const Verify = () => {
   const [verificationCode, setVerificationCode] = useState('');
 
   const { openToast } = useToast();
 
   const navigate = useNavigate();
+
+
+  const email = JSON.parse(localStorage.getItem('verificationinfo')).email;
+  const userid = JSON.parse(localStorage.getItem('verificationinfo')).userid;
+  const name = JSON.parse(localStorage.getItem('verificationinfo')).name;
 
   const handleCodeChange = (e) => {
     // Only allow numbers and format as XX-XX-XX
@@ -29,6 +34,7 @@ const Verify = ({ email = "Emailadress@gmail.com" }) => {
     const response = await apiCall("checkverificationcode", {
       email: email,
       code: verificationCode.replace(/-/g, ''),
+      userid: userid
     });
 
     if (response.isSuccess) {
@@ -41,8 +47,11 @@ const Verify = ({ email = "Emailadress@gmail.com" }) => {
   };
 
   const handleResendCode = () => {
-    // Handle resend code logic
-    console.log('Resending verification code to:', email);
+    apiCall("sendverificationcode", {
+      email: email,
+      name: name
+    });
+    openToast('Een nieuwe verificatiecode is verzonden naar uw e-mailadres.');
   };
 
   return (
