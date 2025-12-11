@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './verify.css';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../../toastmessage/toastmessage';
+import apiCall from '../../Calls/calls';
 
-const Verify = ({ email = "Emailadress@gmail.com" }) => {
+const Verify = () => {
   const [verificationCode, setVerificationCode] = useState('');
+
+  const { openToast } = useToast();
+
+  const navigate = useNavigate();
+
+
+  const email = JSON.parse(localStorage.getItem('verificationinfo')).email;
+  const userid = JSON.parse(localStorage.getItem('verificationinfo')).userid;
+  const name = JSON.parse(localStorage.getItem('verificationinfo')).name;
 
   const handleCodeChange = (e) => {
     // Only allow numbers and format as XX-XX-XX
@@ -18,30 +30,44 @@ const Verify = ({ email = "Emailadress@gmail.com" }) => {
     }
   };
 
-  const handleSubmit = () => {
-    // Handle verification logic here
-    console.log('Verification code:', verificationCode.replace(/-/g, ''));
-    // You can add your verification logic here
+  const handleSubmit = async () => {
+    const response = await apiCall("checkverificationcode", {
+      email: email,
+      code: verificationCode.replace(/-/g, ''),
+      userid: userid
+    });
+
+    if (response.isSuccess) {
+      openToast('E-mail succesvol geverifieerd! U wordt nu doorgestuurd naar de inlogpagina.');
+      navigate('/inloggen');
+    } else {
+      openToast('Verification code is incorrect. Probeer opnieuw.');
+      return;
+    }
   };
 
   const handleResendCode = () => {
-    // Handle resend code logic
-    console.log('Resending verification code to:', email);
+    apiCall("sendverificationcode", {
+      email: email,
+      name: name
+    });
+    openToast('Een nieuwe verificatiecode is verzonden naar uw e-mailadres.');
   };
 
   return (
     <div className="verification-page">
       <div className="verification-container">
         <div className="verification-card">
-          <h2 className="verification-title">Nog een stap</h2>
+          <h2 className="verification-title">Verficatie</h2>
           <div className="title-underline"></div>
-          
+
           <div className="verification-content">
             <p className="verification-message">
               Er is een 6-cijferige code gestuurd naar
+              voer deze in om uw e-mailadres te verifiëren.
             </p>
             <p className="email-address">{email}</p>
-            
+
             <div className="code-input-container">
               <input
                 type="text"
