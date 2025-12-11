@@ -45,7 +45,7 @@ const Register = () => {
     if (response.isSuccess) {
       openToast(response.message);
       setTimeout(() => {
-        navigate("/inloggen");
+        navigate("/verificatie");
       }, 500);
     }
     else {

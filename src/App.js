@@ -54,10 +54,10 @@ function AppContent() {
     "/",
     "/inloggen",
     "/registreren",
-    "/inloggen/verify",
+    "/verificatie",
   ];
   const isNonLoggedIn = nonLoggedInUrls.includes(location.pathname);
-  const loginpages = ["/inloggen", "/registreren", "/inloggen/verify"];
+  const loginpages = ["/inloggen", "/registreren", "/verificatie"];
 
   // const { openToast } = useToast();
 
@@ -143,7 +143,7 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/registreren" element={<Register />} />
             <Route path="/inloggen" element={<Login />} />
-            <Route path="/inloggen/verify" element={<Verify />} />
+            <Route path="/verificatie" element={<Verify />} />
 
             {/* Protected Dashboard routes - only accessible when logged in */}
             {isLoggedIn && (

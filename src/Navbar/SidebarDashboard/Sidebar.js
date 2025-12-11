@@ -1,10 +1,10 @@
 import React from "react";
 import "./Sidebar.css";
-import dashboard from "./media/dashboard.svg"
-import car from "./media/car.svg"
-import invoice from "./media/invoice.svg"
-import notification from "./media/notification.svg"
-import calendar from "./media/notification.svg"
+import dashboard from "./media/dashboard.svg";
+import car from "./media/car.svg";
+import invoice from "./media/invoice.svg";
+import notification from "./media/notification.svg";
+import calendar from "./media/notification.svg";
 
 const Sidebar = ({ userRole, onNavigate, currentPath }) => {
   // Define menu items for different roles
@@ -142,6 +142,11 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("userdata");
+    onNavigate("/");
+  };
+
   const handleNavigation = (path) => {
     if (onNavigate) {
       onNavigate(path);
@@ -176,8 +181,9 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
         {currentMenuItems.map((item) => (
           <div
             key={item.id}
-            className={`sidebar-nav-item ${isActive(item.path) ? "active" : ""
-              }`}
+            className={`sidebar-nav-item ${
+              isActive(item.path) ? "active" : ""
+            }`}
             onClick={() => handleNavigation(item.path)}
             title={item.description}
           >
@@ -185,6 +191,15 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
             <span className="sidebar-nav-label">{item.label}</span>
           </div>
         ))}
+
+        <div className="logout-btn-bottomn">
+          <div
+            className="sidebar-nav-item logout-item"
+            onClick={() => handleLogout()}
+          >
+            <span className="sidebar-nav-label">Uitloggen</span>
+          </div>
+        </div>
       </nav>
 
       {/* Additional Role-specific Info */}

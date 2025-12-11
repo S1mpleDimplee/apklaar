@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 import './verify.css';
+import { useNavigate } from 'react-router-dom';
 
 const Verify = ({ email = "Emailadress@gmail.com" }) => {
   const [verificationCode, setVerificationCode] = useState('');
+
+  const navigate = useNavigate();
+
+  const sendEmail = () => {
+    // Simulate sending email
+    console.log('Sending verification code to:', email);
+  }
 
   const handleCodeChange = (e) => {
     // Only allow numbers and format as XX-XX-XX
@@ -20,7 +28,7 @@ const Verify = ({ email = "Emailadress@gmail.com" }) => {
 
   const handleSubmit = () => {
     // Handle verification logic here
-    console.log('Verification code:', verificationCode.replace(/-/g, ''));
+    navigate('/inloggen');
     // You can add your verification logic here
   };
 
@@ -33,12 +41,13 @@ const Verify = ({ email = "Emailadress@gmail.com" }) => {
     <div className="verification-page">
       <div className="verification-container">
         <div className="verification-card">
-          <h2 className="verification-title">Nog een stap</h2>
+          <h2 className="verification-title">Verficatie</h2>
           <div className="title-underline"></div>
           
           <div className="verification-content">
             <p className="verification-message">
               Er is een 6-cijferige code gestuurd naar
+              voer deze in om uw e-mailadres te verifiëren.
             </p>
             <p className="email-address">{email}</p>
             
