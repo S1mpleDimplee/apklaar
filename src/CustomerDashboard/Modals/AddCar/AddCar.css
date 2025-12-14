@@ -1,0 +1,138 @@
+.popup-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    z-index: 50;
+}
+
+.popup-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    max-width: 48rem;
+    width: 100%;
+    padding: 2rem;
+    position: relative;
+}
+
+.popup-close-btn {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    color: #4b5563;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.popup-close-btn:hover {
+    color: #111827;
+}
+
+.popup-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 2rem;
+}
+
+.popup-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+}
+
+.popup-section-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.popup-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.popup-field {
+    margin-bottom: 0;
+}
+
+.popup-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.popup-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.popup-input:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #0d9488;
+    border-color: #0d9488;
+}
+
+.popup-kenteken {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.popup-kenteken-nl {
+    background-color: #2563eb;
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.popup-kenteken-plate {
+    background-color: #fbbf24;
+    color: black;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    font-weight: bold;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.popup-submit-btn {
+    width: 100%;
+    background-color: #0f766e;
+    color: white;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 0.25rem;
+    margin-top: 1.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.popup-submit-btn:hover {
+    background-color: #115e59;
+}
+
+@media (max-width: 768px) {
+    .popup-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,17 +1,15 @@
-/* CustomerNotifications.css */
-
-
-
 .notifications-content-area {
   border-radius: 5px;
-  background-color: white;
+  padding: 1rem 1rem;
 }
 
 /* Notifications List */
 .notifications-list {
   display: flex;
   flex-direction: column;
-
+  padding: 3rem 3rem;
+  min-height: 89vh;
+  background-color: white;
   gap: 16px;
 }
 
@@ -77,6 +75,13 @@
   /* Blue for appointment */
 }
 
+.end-of-list {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
 .notification-card:nth-child(3) {
   border-left-color: #4a90e2;
   /* Blue for security */
@@ -85,100 +90,4 @@
 .notification-card:nth-child(4) {
   border-left-color: #4a90e2;
   /* Blue for welcome */
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1600px) {
-  .notifications-main-content {
-    padding: 24px;
-  }
-
-  .notifications-content-area {
-    padding: 24px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .notifications-content-area {
-    max-width: 900px;
-  }
-}
-
-@media (max-width: 768px) {
-  .notifications-header {
-    padding: 12px 16px;
-    height: auto;
-  }
-
-  .notifications-main-content {
-    padding: 16px;
-  }
-
-  .notifications-content-area {
-    padding: 20px;
-  }
-
-  .notification-title-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .notification-timestamp {
-    margin-left: 0;
-  }
-
-  .notifications-user-name {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .notification-content {
-    padding: 16px;
-  }
-
-  .notification-title {
-    font-size: 16px;
-  }
-
-  .notification-message {
-    font-size: 14px;
-  }
-
-  .notification-timestamp {
-    font-size: 13px;
-  }
-}
-
-/* Ensure full viewport coverage at 1920x1080 */
-@media (min-width: 1920px) {
-  .notifications-main-content {
-    padding: 40px;
-  }
-
-  .notifications-content-area {
-    max-width: 1400px;
-    padding: 40px;
-  }
-
-  .notifications-list {
-    gap: 20px;
-  }
-
-  .notification-content {
-    padding: 24px 28px;
-  }
-
-  .notification-title {
-    font-size: 19px;
-  }
-
-  .notification-message {
-    font-size: 16px;
-  }
-
-  .notification-timestamp {
-    font-size: 15px;
-  }
 }
