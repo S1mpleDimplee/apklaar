@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CarDetails.css';
+import AddCar from '../Modals/AddCar/AddCar';
 
 const CarDetails = () => {
+
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const handleOpenPopup = () => {
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+  };
   return (
 
     <div className="car-main-content">
@@ -68,10 +79,11 @@ const CarDetails = () => {
 
           <div className="car-register-prompt">
             <span>Wilt u nog een auto registeren? </span>
-            <a href="#" className="car-register-link">klik hier</a>
+            <a onClick={handleOpenPopup} className="car-register-link">klik hier</a>
           </div>
         </div>
       </div>
+      {isPopupOpen && <AddCar isOpen={isPopupOpen} onClose={handleClosePopup} />}
     </div>
   );
 };

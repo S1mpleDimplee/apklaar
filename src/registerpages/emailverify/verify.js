@@ -13,7 +13,7 @@ const Verify = () => {
 
 
   const email = JSON.parse(localStorage.getItem('verificationinfo')).email;
-  const userid = JSON.parse(localStorage.getItem('verificationinfo')).userid;
+  const userid = JSON.parse(localStorage.getItem('userdata')).userid;
   const name = JSON.parse(localStorage.getItem('verificationinfo')).name;
 
   const handleCodeChange = (e) => {
@@ -41,7 +41,7 @@ const Verify = () => {
       openToast('E-mail succesvol geverifieerd! U wordt nu doorgestuurd naar de inlogpagina.');
       navigate('/inloggen');
     } else {
-      openToast('Verification code is incorrect. Probeer opnieuw.');
+      openToast(response.message);
       return;
     }
   };
