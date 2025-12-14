@@ -1,36 +1,26 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Notifications.css';
+import apiCall from '../../Calls/calls';
 
 const CustomerNotifications = () => {
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: 'Nieuwe factuur',
-      message: 'Er is een nieuwe factuur van 24-12-2025 met het bedrag van €120,21',
-      timestamp: '21-12-2025 12:00',
-      type: 'invoice'
-    },
-    {
-      id: 2,
-      title: 'Afspraak bevestigd',
-      message: 'Uw afspraak van 24-12-2025 om 12:00 is bevestigd',
-      timestamp: '21-12-2025 12:00',
-      type: 'appointment'
-    },
-    {
-      id: 3,
-      title: 'Wachtwoord gewijzigd',
-      message: 'Uw wachtwoord is gewijzigd, bent u dit niet? neem direct contact met ons op',
-      timestamp: '21-12-2025 12:00',
-      type: 'security'
-    },
-    {
-      id: 4,
-      title: 'Welkom',
-      message: 'Welkom bij APKlaar wij hopen u goed van dienst te zijn',
-      timestamp: '21-12-2025 12:00',
-      type: 'welcome'
-    }
+
+  useEffect(() => {
+
+    const fetchNotifications = async () => {
+      const userid = JSON.parse(localStorage.getItem('userdata')).userid;
+
+      const response = await apiCall('getNotifications', { userid });
+      if (response.isSuccess) {
+        setNotifications(response.data);
+      }
+    };
+
+    fetchNotifications();
+
+  }, []);
+
+  const [notifications, setNotifications] = useState([{
+  }
   ]);
 
   return (
@@ -42,12 +32,13 @@ const CustomerNotifications = () => {
               <div className="notification-content">
                 <div className="notification-title-row">
                   <h3 className="notification-title">{notification.title}</h3>
-                  <span className="notification-timestamp">{notification.timestamp}</span>
+                  <span className="notification-timestamp">{notification.date}</span>
                 </div>
-                <p className="notification-message">{notification.message}</p>
+                <p className="notification-message">{notification.description}</p>
               </div>
             </div>
           ))}
+          <p className='end-of-list'>Einde van de lijst</p>
         </div>
       </div>
     </div>
