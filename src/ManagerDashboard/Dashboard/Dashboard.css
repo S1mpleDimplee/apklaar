@@ -393,7 +393,7 @@
   .manager-dashboard-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .manager-dashboard-additional-stats {
     grid-template-columns: 1fr;
   }
@@ -403,7 +403,7 @@
   .manager-dashboard-content-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .manager-dashboard-bridges-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -413,32 +413,32 @@
   .manager-dashboard-main-content {
     padding: 16px;
   }
-  
+
   .manager-dashboard-header {
     padding: 12px 16px;
   }
-  
+
   .manager-dashboard-stats-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .manager-dashboard-content-grid {
     gap: 16px;
   }
-  
+
   .manager-dashboard-stat-card {
     padding: 20px;
   }
-  
+
   .manager-dashboard-content-section {
     padding: 20px;
   }
-  
+
   .manager-dashboard-bridges-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .manager-dashboard-user-name {
     display: none;
   }
@@ -450,17 +450,17 @@
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .manager-dashboard-staff-bridge {
     align-self: flex-end;
   }
-  
+
   .manager-dashboard-revenue-info {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .manager-dashboard-revenue-target {
     margin-left: 0;
   }

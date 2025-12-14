@@ -5,27 +5,22 @@ import apiCall from '../../Calls/calls';
 const CustomerNotifications = () => {
 
   useEffect(() => {
-    let isMounted = true; // To prevent state updates on unmounted components
 
     const fetchNotifications = async () => {
       const userid = JSON.parse(localStorage.getItem('userdata')).userid;
 
       const response = await apiCall('getNotifications', { userid });
-      if (response.isSuccess && isMounted) {
+      if (response.isSuccess) {
         setNotifications(response.data);
       }
     };
 
     fetchNotifications();
 
-    return () => {
-      isMounted = false; // Cleanup function to avoid memory leaks
-    };
   }, []);
 
-  const [notifications, setNotifications] = useState([
-    {
-    }
+  const [notifications, setNotifications] = useState([{
+  }
   ]);
 
   return (
