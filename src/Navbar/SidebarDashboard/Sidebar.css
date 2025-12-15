@@ -235,6 +235,13 @@
   transform: translateX(4px);
 }
 
+.apklaar-sidebar-icon {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 /* Custom scrollbar for overflow content */
 .sidebar-nav::-webkit-scrollbar {
   width: 4px;

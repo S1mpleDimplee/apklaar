@@ -5,6 +5,7 @@ import car from "./media/car.svg";
 import invoice from "./media/invoice.svg";
 import notification from "./media/notification.svg";
 import calendar from "./media/notification.svg";
+import apklaar_white from "./media/apklaar_white.png";
 
 const Sidebar = ({ userRole, onNavigate, currentPath }) => {
   // Define menu items for different roles
@@ -131,14 +132,14 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
   // Get role-specific title
   const getRoleTitle = () => {
     switch (userRole) {
-      case 0:
-        return "Klant Profiel";
       case 1:
-        return "Monteur Profiel";
+        return "Klant Profiel";
       case 2:
+        return "Monteur Profiel";
+      case 3:
         return "Manager Profiel";
       default:
-        return "Gebruiker Profiel";
+        return "Klant Profiel";
     }
   };
 
@@ -166,7 +167,7 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <h1>
-            APK<span className="sidebar-logo-accent">KLAAR</span>
+            <img src={apklaar_white} alt="APKLAAR Logo" className="apklaar-sidebar-icon" />
           </h1>
         </div>
       </div>

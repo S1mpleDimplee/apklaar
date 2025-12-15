@@ -1,159 +1,238 @@
-import React, { useState } from 'react';
-import './AddCar.css';
-import { useToast } from '../../../toastmessage/toastmessage';
-import apiCall from '../../../Calls/calls';
+import React, { useState } from "react";
+import "./AddCar.css";
+import { useToast } from "../../../toastmessage/toastmessage";
+import apiCall from "../../../Calls/calls";
 
-// AutoRegistrerenPopup Component
+// AddCar Component
 const AddCar = ({ isOpen, onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
-    userid: '',
-    brand: '',
-    model: '',
-    buildyear: '',
-    lastInspection: '',
-    color: '',
-    fuelType: '',
-    carNickname: '',
-    countryCode: 'NL',
-    licensePlate: 'Uw-pla-tje'
+    userid: "",
+    brand: "",
+    model: "",
+    buildyear: "",
+    lastInspection: "",
+    color: "",
+    fuelType: "",
+    carNickname: "",
+    countryCode: "NL",
+    licensePlate: "Uw-pla-tje",
   });
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const { openToast } = useToast();
 
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+
+      // Create preview URL
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    // Reset file input
+    const fileInput = document.getElementById("car-image-input");
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  };
 
   const handleSubmit = async () => {
-    formData.userid = JSON.parse(localStorage.getItem('userdata')).userid;
+    formData.userid = JSON.parse(localStorage.getItem("userdata")).userid;
 
-    const response = await apiCall('addCar', formData);
+    // If you need to include the image in the API call, you can use FormData
+    const submitData = new FormData();
+    Object.keys(formData).forEach((key) => {
+      submitData.append(key, formData[key]);
+    });
+
+    if (selectedImage) {
+      submitData.append("carImage", selectedImage);
+    }
+
+    const response = await apiCall("addCar", submitData);
     if (response.isSuccess) {
       openToast(response.message);
       // onClose();
     } else {
       openToast(response.message);
     }
-
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="popup-overlay">
-      <div className="popup-container">
-        <button onClick={onClose} className="popup-close-btn">
-          &times;
+    <div className="addcar-overlay">
+      <div className="addcar-container">
+        <button onClick={onClose} className="addcar-close-btn">
+          ✕
         </button>
 
-        <h2 className="popup-title">Auto regristeren</h2>
+        <h2 className="addcar-title">Auto registreren</h2>
 
-        <div className="popup-grid">
-          <div>
-            <h3 className="popup-section-title">Verplichte informatie</h3>
-
-            <div className="popup-form-group">
-              <div className="popup-field">
-                <label className="popup-label">Auto merk</label>
+        <div className="addcar-content">
+          {/* Left Column - Form Fields */}
+          <div className="addcar-form-section">
+            <div className="addcar-form-row">
+              <div className="addcar-field">
+                <label className="addcar-label">Auto merk</label>
                 <input
                   type="text"
                   value={formData.brand}
-                  onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, brand: e.target.value })
+                  }
                   placeholder="Bijv: Toyota"
-                  className="popup-input"
+                  className="addcar-input"
                 />
               </div>
 
-              <div className="popup-field">
-                <label className="popup-label">Model</label>
-                <input
-                  type="text"
-                  value={formData.model}
-                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                  placeholder="Bijv: Toyota Starlet"
-                  className="popup-input"
-                />
-              </div>
-
-              <div className="popup-field">
-                <label className="popup-label">Bouw jaar</label>
+              <div className="addcar-field">
+                <label className="addcar-label">Bouw jaar</label>
                 <input
                   type="text"
                   value={formData.buildyear}
-                  onChange={(e) => setFormData({ ...formData, buildyear: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, buildyear: e.target.value })
+                  }
                   placeholder="Bijv: 1999"
-                  className="popup-input"
+                  className="addcar-input"
+                />
+              </div>
+            </div>
+
+            <div className="addcar-form-row">
+              <div className="addcar-field">
+                <label className="addcar-label">Model</label>
+                <input
+                  type="text"
+                  value={formData.model}
+                  onChange={(e) =>
+                    setFormData({ ...formData, model: e.target.value })
+                  }
+                  placeholder="Bijv: Toyota Starlet"
+                  className="addcar-input"
                 />
               </div>
 
-              <div className="popup-field">
-                <label className="popup-label">Kenteken</label>
+              <div className="addcar-field">
+                <label className="addcar-label">Laatste keuring</label>
                 <input
-                  className="popup-kenteken-nl"
                   type="text"
-                  value={formData.countryCode}
-                  onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
-                  placeholder="Bijv: 1999"
+                  value={formData.lastInspection}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastInspection: e.target.value })
+                  }
+                  placeholder="DD-MM-YYYY"
+                  className="addcar-input"
                 />
+              </div>
+            </div>
+
+            <div className="addcar-form-row">
+              <div className="addcar-field">
+                <label className="addcar-label">Kleur</label>
                 <input
-                  className="popup-kenteken-plate"
                   type="text"
-                  value={formData.licensePlate}
-                  onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value })}
-                  placeholder="Bijv: 12-12-ABC"
+                  value={formData.color}
+                  onChange={(e) =>
+                    setFormData({ ...formData, color: e.target.value })
+                  }
+                  placeholder="Blauw"
+                  className="addcar-input"
+                />
+              </div>
+
+              <div className="addcar-field">
+                <label className="addcar-label">Gewicht</label>
+                <input type="text" placeholder="0g" className="addcar-input" />
+              </div>
+            </div>
+
+            <div className="addcar-form-row">
+              <div className="addcar-field">
+                <label className="addcar-label">Brandstof</label>
+                <input
+                  type="text"
+                  value={formData.fuelType}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fuelType: e.target.value })
+                  }
+                  placeholder="Bijv: Diesel"
+                  className="addcar-input"
+                />
+              </div>
+
+              <div className="addcar-field">
+                <label className="addcar-label">Willekeurige naam</label>
+                <input
+                  type="text"
+                  value={formData.carNickname}
+                  onChange={(e) =>
+                    setFormData({ ...formData, carNickname: e.target.value })
+                  }
+                  placeholder="Mijn auto naam"
+                  className="addcar-input"
                 />
               </div>
             </div>
           </div>
 
-          {/* Right Column - Extra informatie */}
-          <div>
-            <h3 className="popup-section-title">Extra informatie</h3>
-            <div className="popup-field">
-              <label className="popup-label">Laatste keuring</label>
-              <input
-                type="text"
-                value={formData.lastInspection}
-                onChange={(e) => setFormData({ ...formData, lastInspection: e.target.value })}
-                placeholder="DD-MM-YYYY"
-                className="popup-input"
-              />
+          {/* Right Column - License Plate and Image */}
+          <div className="addcar-side-section">
+            <div className="addcar-license-section">
+              <h3 className="addcar-section-title">Kenteken</h3>
+              <div className="addcar-license-plate">
+                <span className="addcar-license-country">
+                  {formData.countryCode}
+                </span>
+                <span className="addcar-license-number">
+                  {formData.licensePlate}
+                </span>
+              </div>
             </div>
-            <div className="popup-form-group">
-              <div className="popup-field">
-                <label className="popup-label">Kleur</label>
-                <input
-                  type="text"
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  placeholder="Blauw"
-                  className="popup-input"
-                />
-              </div>
 
-              <div className="popup-field">
-                <label className="popup-label">Brandstof</label>
-                <input
-                  type="text"
-                  value={formData.fuelType}
-                  onChange={(e) => setFormData({ ...formData, fuelType: e.target.value })}
-                  placeholder="Bijv: Diesel"
-                  className="popup-input"
-                />
-              </div>
+            <div className="addcar-image-section">
+              <h3 className="addcar-section-title">Afbeelding</h3>
+              {imagePreview && (
+                <span className="addcar-image-note" onClick={removeImage}>
+                  Afbeelding verwijderen
+                </span>
+              )}
+              <div className="addcar-image-container">
+                <div className="addcar-image-preview">
+                  <img
+                    src={imagePreview}
+                    className="addcar-preview-image"
+                  />
+                </div>
 
-              <div className="popup-field">
-                <label className="popup-label">Willekeurige naam</label>
                 <input
-                  type="text"
-                  value={formData.carNickname}
-                  onChange={(e) => setFormData({ ...formData, carNickname: e.target.value })}
-                  placeholder="Mijn auto naam"
-                  className="popup-input"
+                  type="file"
+                  id="car-image-input"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="addcar-file-input"
                 />
+                <label htmlFor="car-image-input" className="addcar-upload-btn">
+                  {imagePreview ? "Andere afbeelding" : "Afbeelding uploaden"}
+                </label>
               </div>
-
-              <button onClick={handleSubmit} className="popup-submit-btn">
-                Auto registreren
-              </button>
             </div>
+
+            <button onClick={handleSubmit} className="addcar-submit-btn">
+              Auto registreren
+            </button>
           </div>
         </div>
       </div>

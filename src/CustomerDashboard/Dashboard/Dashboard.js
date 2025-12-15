@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import apiCall from '../../Calls/calls';
 
-
-
 const DashboardKlant = () => {
-
-
   const [notifications, setNotifications] = useState([{}]);
 
   useEffect(() => {
@@ -20,8 +16,6 @@ const DashboardKlant = () => {
       setNotifications(response.data);
     }
   };
-
-
 
   return (
     <div className="dashboard-container">
