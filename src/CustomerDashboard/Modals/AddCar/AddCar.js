@@ -54,7 +54,7 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
     const response = await apiCall("addCar", formData);
     if (response.isSuccess) {
       openToast(response.message);
-      // onClose();
+      onClose();
     } else {
       openToast(response.message);
     }

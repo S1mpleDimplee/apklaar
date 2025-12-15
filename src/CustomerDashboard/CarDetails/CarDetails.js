@@ -51,6 +51,7 @@ const CarDetails = () => {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+    fetchCars();
   };
 
   const handleCarAdded = () => {
