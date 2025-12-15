@@ -16,6 +16,7 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
     carNickname: "",
     countryCode: "NL",
     licensePlate: "Uw-pla-tje",
+    carimage: null,
   });
 
   const [selectedImage, setSelectedImage] = useState(null);
@@ -28,10 +29,10 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
     if (file) {
       setSelectedImage(file);
 
-      // Create preview URL
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target.result);
+        setFormData({ ...formData, carimage: e.target.result });
       };
       reader.readAsDataURL(file);
     }
@@ -50,17 +51,7 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
   const handleSubmit = async () => {
     formData.userid = JSON.parse(localStorage.getItem("userdata")).userid;
 
-    // If you need to include the image in the API call, you can use FormData
-    const submitData = new FormData();
-    Object.keys(formData).forEach((key) => {
-      submitData.append(key, formData[key]);
-    });
-
-    if (selectedImage) {
-      submitData.append("carImage", selectedImage);
-    }
-
-    const response = await apiCall("addCar", submitData);
+    const response = await apiCall("addCar", formData);
     if (response.isSuccess) {
       openToast(response.message);
       // onClose();
@@ -102,9 +93,10 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
                 <input
                   type="text"
                   value={formData.buildyear}
-                  onChange={(e) =>
-                    setFormData({ ...formData, buildyear: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    setFormData({ ...formData, buildyear: value });
+                  }}
                   placeholder="Bijv: 1999"
                   className="addcar-input"
                 />
@@ -130,9 +122,10 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
                 <input
                   type="text"
                   value={formData.lastInspection}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastInspection: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    setFormData({ ...formData, lastInspection: value });
+                  }}
                   placeholder="DD-MM-YYYY"
                   className="addcar-input"
                 />
@@ -211,10 +204,7 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
               )}
               <div className="addcar-image-container">
                 <div className="addcar-image-preview">
-                  <img
-                    src={imagePreview}
-                    className="addcar-preview-image"
-                  />
+                  <img src={imagePreview} className="addcar-preview-image" />
                 </div>
 
                 <input

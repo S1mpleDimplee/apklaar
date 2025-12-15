@@ -134,7 +134,7 @@ const CarDetails = () => {
 
           <div className="car-image-container">
             <img
-              src="https://placehold.co/500x230"
+              src={selectedCar?.carimage || "https://placehold.co/500x230"}
               alt={`${selectedCar?.brand} ${selectedCar?.model}`}
               className="car-image"
             />
