@@ -62,7 +62,7 @@ const DashboardKlant = () => {
                 </div>
               ))}
             </div>
-            <p className='end-of-list'>Einde van de lijst</p>
+            <p className="end-of-list">Einde van de lijst</p>
 
 
           </div>

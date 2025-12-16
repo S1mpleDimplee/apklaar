@@ -11,6 +11,8 @@
   min-height: 89vh;
   background-color: white;
   gap: 16px;
+  overflow-y: auto;
+  max-height: 89vh;
 }
 
 /* Individual Notification Cards - Exact match to design */
