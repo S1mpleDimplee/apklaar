@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import apiCall from '../../Calls/calls';
 
-
-
 const DashboardKlant = () => {
-
-
   const [notifications, setNotifications] = useState([{}]);
 
   useEffect(() => {
@@ -20,8 +16,6 @@ const DashboardKlant = () => {
       setNotifications(response.data);
     }
   };
-
-
 
   return (
     <div className="dashboard-container">
@@ -56,19 +50,19 @@ const DashboardKlant = () => {
             <h2>Meldingen</h2>
 
             <div className="notification-item">
-              {notifications.map((notification) => (
-                <div key={notification.id} className="notification-card">
-                  <div className="notification-content">
-                    <div className="notification-title-row">
-                      <h3 className="notification-title">{notification.title}</h3>
-                      <span className="notification-timestamp">{notification.date}</span>
+              {notifications.slice(0, 4).map((notification) => (
+                <div key={notification.id} className="dashboard-notification-card">
+                  <div className="dashboard-notification-content">
+                    <div className="dashboard-notification-title-row">
+                      <h3 className="dashboard-notification-title">{notification.title}</h3>
+                      <span className="dashboard-notification-timestamp">{notification.date}</span>
                     </div>
-                    <p className="notification-message">{notification.description}</p>
+                    <p className="dashboard-notification-message">{notification.description}</p>
                   </div>
                 </div>
               ))}
             </div>
-            <p className='end-of-list'>Einde van de lijst</p>
+            <p className="end-of-list">Einde van de lijst</p>
 
 
           </div>

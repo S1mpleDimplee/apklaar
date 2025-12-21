@@ -1,7 +1,10 @@
 import React from "react";
 import "./NavbarDashboard.css";
 
-const NavbarDashboard = ({ userName = "Edward robinson", userImage }) => {
+const NavbarDashboard = ({userImage }) => {
+
+  const username = JSON.parse(localStorage.getItem("userdata"))?.firstName;
+
   return (
     <header className="navbar-dashboard-header">
       <div className="navbar-dashboard-container">
@@ -22,7 +25,7 @@ const NavbarDashboard = ({ userName = "Edward robinson", userImage }) => {
               alt="User profile"
               className="user-avatar"
             />
-            <span className="user-name">{userName}</span>
+            <span className="user-name">{username}</span>
           </div>
         </div>
       </div>

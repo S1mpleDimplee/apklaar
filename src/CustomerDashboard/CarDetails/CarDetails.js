@@ -4,6 +4,7 @@ import AddCar from '../Modals/AddCar/AddCar';
 import apiCall from '../../Calls/calls';
 import { useToast } from '../../toastmessage/toastmessage';
 
+
 const CarDetails = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [cars, setCars] = useState([]);
@@ -51,6 +52,7 @@ const CarDetails = () => {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
+    fetchCars();
   };
 
   const handleCarAdded = () => {
@@ -61,6 +63,34 @@ const CarDetails = () => {
   const handleSelectCar = (car) => {
     setSelectedCar(car);
   };
+
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const handleDeleteCar = async () => {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      openToast("Weet je zeker dat je deze auto wilt verwijderen? Klik nogmaals om te bevestigen.");
+    } else {
+      let carid = selectedCar.carid;
+      let userid = JSON.parse(localStorage.getItem('userdata')).userid;
+      let carname = selectedCar.carnickname || `${selectedCar.brand} ${selectedCar.model}`;
+
+      const response = await apiCall('removecar', { carid, userid, carname });
+      if (response.isSuccess) {
+        openToast('Auto succesvol verwijderd');
+        fetchCars();
+      } else {
+        openToast(response.message);
+      }
+      setConfirmDelete(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const timer = setTimeout(() => setConfirmDelete(false), 3000);
+    return () => clearTimeout(timer);
+  }, [confirmDelete]);
 
   const formatDate = (dateString) => {
     if (!dateString || dateString === '0000-00-00') {
@@ -134,7 +164,7 @@ const CarDetails = () => {
 
           <div className="car-image-container">
             <img
-              src="https://placehold.co/500x230"
+              src={selectedCar?.carimage || "https://placehold.co/500x230"}
               alt={`${selectedCar?.brand} ${selectedCar?.model}`}
               className="car-image"
             />
@@ -172,7 +202,10 @@ const CarDetails = () => {
             </div>
           )}
 
-          <button className="car-modify-btn">Informatie wijzigen</button>
+          <div className='inline-buttons'>
+            <button className="car-modify-btn">Informatie wijzigen</button>
+            <p className='remove-car-button' onClick={() => handleDeleteCar()}>Auto verwijderen</p>
+          </div>
         </div>
 
         {/* Right Side - Car Info */}
