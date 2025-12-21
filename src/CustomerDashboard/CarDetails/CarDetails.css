@@ -9,6 +9,21 @@
   margin-bottom: 24px;
 }
 
+.inline-buttons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.remove-car-button {
+  color: #e53935;
+  font-size: 14px;
+  cursor: pointer;
+
+  margin-top: 23px;
+  align-self: end;
+}
 
 .car-tab {
   padding: 8px 16px;
