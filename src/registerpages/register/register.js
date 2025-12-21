@@ -51,6 +51,10 @@ const Register = () => {
         name: formData.firstname
       }));
 
+      localStorage.setItem("userdata", JSON.stringify({
+        userid: response.data.userid
+      }));
+
       apiCall("sendverificationcode", {
         email: formData.email,
         name: formData.firstname,

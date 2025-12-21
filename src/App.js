@@ -116,6 +116,11 @@ function AppContent() {
 
   return (
     <div className="app-container">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+      </head>
       {/* Navbar at the top */}
       {!isDashboard && <NavbarHome />}
 
