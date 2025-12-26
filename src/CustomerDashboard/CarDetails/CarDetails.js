@@ -7,8 +7,10 @@ import { useToast } from '../../toastmessage/toastmessage';
 
 const CarDetails = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [cars, setCars] = useState([]);
   const [selectedCar, setSelectedCar] = useState(null);
+  const [editedCarDetails, setEditedCarDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const { openToast } = useToast();
 
@@ -45,6 +47,17 @@ const CarDetails = () => {
       setLoading(false);
     }
   };
+
+  const editCar = async () => {
+    const response = await apiCall('editcar', editedCarDetails);
+    if (response.isSuccess) {
+      openToast(response.message || 'Auto informatie bijgewerkt');
+      setIsEditing(false);
+      fetchCars();
+    } else {
+      openToast(response.message || 'Fout bij bijwerken auto informatie');
+    }
+  }
 
   const handleOpenPopup = () => {
     setIsPopupOpen(true);
@@ -150,17 +163,31 @@ const CarDetails = () => {
       <div className="car-content-grid">
         <div className="car-left-section">
           {/* Car Tabs */}
-          <div className="car-tabs">
-            {cars.map((car) => (
-              <div
-                key={car.carid}
-                className={`car-tab ${selectedCar?.carid === car.carid ? 'active' : ''}`}
-                onClick={() => handleSelectCar(car)}
-              >
-                {car.carnickname || `${car.brand} ${car.model}`}
-              </div>
-            ))}
-          </div>
+          {!isEditing && (
+            <div className="car-tabs">
+              {cars.map((car) => (
+                <div
+                  key={car.carid}
+                  className={`car-tab ${selectedCar?.carid === car.carid ? 'active' : ''}`}
+                  onClick={() => handleSelectCar(car)}
+                >
+                  {car.carnickname || `${car.brand} ${car.model}`}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {isEditing && selectedCar && (
+            <div className="car-tabs-editing">
+              <input
+                type="text"
+                className={`car-tab ${selectedCar?.carid === selectedCar.carid ? 'active' : ''}`}
+                value={editedCarDetails.carnickname || ''}
+                onChange={(e) => setEditedCarDetails({ ...editedCarDetails, carnickname: e.target.value })}
+                placeholder={`${selectedCar.brand} ${selectedCar.model}`}
+              />
+            </div>
+          )}
 
           <div className="car-image-container">
             <img
@@ -170,25 +197,73 @@ const CarDetails = () => {
             />
           </div>
 
-          {/* Car Details Table */}
           {selectedCar && (
             <div className="car-details-table">
               <div className="car-detail-row">
                 <span className="car-detail-label">Merk</span>
-                <span className="car-detail-value">{selectedCar.brand}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    className="car-detail-input"
+                    value={editedCarDetails.brand}
+                    onChange={(e) => setEditedCarDetails({ ...editedCarDetails, brand: e.target.value })}
+                  />
+                ) : (
+                  <span className="car-detail-value">{selectedCar.brand}</span>
+                )}
               </div>
               <div className="car-detail-row">
                 <span className="car-detail-label">Model</span>
-                <span className="car-detail-value">{selectedCar.model}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    className="car-detail-input"
+                    value={editedCarDetails.model}
+                    onChange={(e) => setEditedCarDetails({ ...editedCarDetails, model: e.target.value })}
+                  />
+                ) : (
+                  <span className="car-detail-value">{selectedCar.model}</span>
+                )}
               </div>
               <div className="car-detail-row">
                 <span className="car-detail-label">Bouw jaar</span>
-                <span className="car-detail-value">{formatYear(selectedCar.buildyear)}</span>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    className="car-detail-input"
+                    value={editedCarDetails.buildyear}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "");
+                      setEditedCarDetails({ ...editedCarDetails, buildyear: value });
+                    }}
+                  />
+                ) : (
+                  <span className="car-detail-value">{formatYear(selectedCar.buildyear)}</span>
+                )}
               </div>
               <div className="car-detail-row">
                 <span className="car-detail-label">Kenteken</span>
                 <span className="car-detail-value">
-                  {selectedCar.licenseplatecountry} - {selectedCar.licenseplate}
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        className="car-detail-input"
+                        value={editedCarDetails.licenseplatecountry}
+                        onChange={(e) => setEditedCarDetails({ ...editedCarDetails, licenseplatecountry: e.target.value })}
+                      />
+                      <input
+                        type="text"
+                        className="car-detail-input"
+                        value={editedCarDetails.licenseplate}
+                        onChange={(e) => setEditedCarDetails({ ...editedCarDetails, licenseplate: e.target.value })}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {selectedCar.licenseplatecountry} - {selectedCar.licenseplate}
+                    </>
+                  )}
                 </span>
               </div>
               <div className="car-detail-row">
@@ -203,8 +278,19 @@ const CarDetails = () => {
           )}
 
           <div className='inline-buttons'>
-            <button className="car-modify-btn">Informatie wijzigen</button>
-            <p className='remove-car-button' onClick={() => handleDeleteCar()}>Auto verwijderen</p>
+            {isEditing ? (
+              <>
+                <button className="car-modify-btn" onClick={() => editCar()}>Opslaan</button>
+                <p className='remove-car-button' onClick={() => setIsEditing(false)}>Bewerken afbreken</p>
+              </>
+            ) : (
+              <>
+                <button className="car-modify-btn" onClick={() => {
+                  setIsEditing(true)
+                  setEditedCarDetails(selectedCar);
+                }}>Informatie wijzigen</button>
+                <p className='remove-car-button' onClick={() => handleDeleteCar()}>Auto verwijderen</p>
+              </>)}
           </div>
         </div>
 
