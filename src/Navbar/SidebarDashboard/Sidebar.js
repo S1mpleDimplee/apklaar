@@ -182,9 +182,8 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
         {currentMenuItems.map((item) => (
           <div
             key={item.id}
-            className={`sidebar-nav-item ${
-              isActive(item.path) ? "active" : ""
-            }`}
+            className={`sidebar-nav-item ${isActive(item.path) ? "active" : ""
+              }`}
             onClick={() => handleNavigation(item.path)}
             title={item.description}
           >

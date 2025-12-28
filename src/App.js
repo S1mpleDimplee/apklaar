@@ -26,6 +26,7 @@ import ManagerInvoices from "./ManagerDashboard/Invoices/invoices";
 import ManagerTimeTable from "./ManagerDashboard/TimeTable/TimeTable";
 import Sidebar from "./Navbar/SidebarDashboard/Sidebar"; // Import the new Sidebar component
 import NavbarDashboard from "./Navbar/NavbarDashboard/NavbarDashboard";
+import InvoicesCustomer from "./CustomerDashboard/Invoices/Invoices";
 
 // Inner component that uses useLocation
 function AppContent() {
@@ -162,6 +163,7 @@ function AppContent() {
                       path="/dashboard/berichten"
                       element={<CustomerNotifications />}
                     />
+                    <Route path="/dashboard/facturen" element={<InvoicesCustomer />} />
                   </>
                 )}
 

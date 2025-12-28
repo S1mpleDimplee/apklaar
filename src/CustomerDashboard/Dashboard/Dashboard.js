@@ -4,9 +4,12 @@ import apiCall from '../../Calls/calls';
 
 const DashboardKlant = () => {
   const [notifications, setNotifications] = useState([{}]);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [openInvoices, setOpenInvoices] = useState(0);
 
   useEffect(() => {
     fetchNotifications();
+    fetchDashboardInfo();
   }, []);
 
   const fetchNotifications = async () => {
@@ -15,6 +18,15 @@ const DashboardKlant = () => {
     if (response.isSuccess) {
       setNotifications(response.data);
     }
+  };
+
+  const fetchDashboardInfo = async () => {
+    const userid = JSON.parse(localStorage.getItem('userdata')).userid;
+    const response = await apiCall('fetchcustomerdashboard', { userid });
+    if (response.isSuccess) {
+      setOpenInvoices(response.data.openInvoices);
+    }
+
   };
 
   return (
@@ -40,8 +52,8 @@ const DashboardKlant = () => {
           </div>
 
           <div className="stat-card dark-blue">
-            <h3>1 open factuur(en)</h3>
-            <p>Momenteel heeft u 1 factuur open staan betaal dit via "Facturen"</p>
+            <h3>{openInvoices} open factuur(en)</h3>
+            <p>Momenteel heeft u {openInvoices} factuur(en) open staan betaal dit via de "Facturen" pagina</p>
           </div>
         </div>
 
@@ -69,7 +81,10 @@ const DashboardKlant = () => {
           <div className="content-section">
             <h2>Volgende APK Keuring</h2>
             <div className="empty-content">
-              {/* This section appears to be empty in the design */}
+
+              <p>U heeft nog geen APK keuringen ingepland. Plan nu uw volgende APK keuring om uw voertuig in topconditie te houden!</p>
+              <button className="plan-apk-button"
+                onClick={() => setShowAppointmentModal(true)}>Plan APK Keuring</button>
             </div>
           </div>
         </div>
