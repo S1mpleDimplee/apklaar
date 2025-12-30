@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './Invoices.css';
 import apiCall from '../../Calls/calls';
+import downloadApiCall from '../../Calls/downloadCall';
 
 const InvoicesCustomer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  const [invoices, setInvoices] = useState([
-    {
-
-    }
-  ]);
-
-
-  const downloadInvoice = (invoiceId) => {
-    console.log(`Downloading invoice with ID: ${invoiceId}`);
-  };
+  const [invoices, setInvoices] = useState([{}]);
 
   useEffect(() => {
     fetchInvoices();
@@ -27,15 +18,33 @@ const InvoicesCustomer = () => {
     });
     if (response.isSuccess) {
       setInvoices(response.data);
-    }
-    else {
+    } else {
       console.log(response.message);
     }
   };
 
+  const downloadInvoice = async (invoiceId) => {
+    try {
+      const response = await downloadApiCall(
+        'generateinvoice',
+        {
+          invoiceid: invoiceId,
+          action: 'download'
+        },
+        `factuur_${invoiceId}.pdf`
+      );
+
+      if (!response.isSuccess) {
+        alert('Er is een fout opgetreden bij het downloaden van de factuur');
+      }
+
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      alert('Er is een fout opgetreden bij het downloaden van de factuur');
+    }
+  };
 
   const filteredInvoices = invoices.filter(invoice => {
-
     const matchesSearch = invoice?.carnickname?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || invoice.status === statusFilter;
     return matchesSearch && matchesStatus;
@@ -44,8 +53,6 @@ const InvoicesCustomer = () => {
   return (
     <div className="customer-invoices-main-content">
       <div className="customer-invoices-content-area">
-
-
         <div className="customer-invoices-search-bar">
           <div className="customer-invoices-search-input-wrapper">
             <input
@@ -85,18 +92,17 @@ const InvoicesCustomer = () => {
             <tbody>
               {filteredInvoices.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="customer-invoices-no-results">
+                  <td colSpan="7" className="customer-invoices-no-results">
                     Geen facturen gevonden met de zoekterm {searchTerm}.
                   </td>
                 </tr>
-              )
-              }
+              )}
 
               {filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="customer-invoices-table-row">
+                <tr key={invoice.invoiceid} className="customer-invoices-table-row">
                   <td className="customer-invoices-table-cell">{invoice.description}</td>
                   <td className="customer-invoices-table-cell">{invoice.carnickname}</td>
-                  <td className="customer-invoices-table-cell">{invoice.cost}</td>
+                  <td className="customer-invoices-table-cell">€{invoice.cost}</td>
                   <td className="customer-invoices-table-cell">{invoice.date}</td>
                   <td className="customer-invoices-table-cell">{invoice.payed_on}</td>
                   <td className="customer-invoices-table-cell">
@@ -106,7 +112,12 @@ const InvoicesCustomer = () => {
                   </td>
                   <td className="customer-invoices-table-cell">
                     <div className="customer-invoices-action-buttons">
-                      <button className="customer-invoices-btn-inzien" onClick={() => downloadInvoice(invoice.id)} >Inzien</button>
+                      <button
+                        className="customer-invoices-btn-inzien"
+                        onClick={() => downloadInvoice(invoice.invoiceid)}
+                      >
+                        Inzien
+                      </button>
                       {invoice.status === 'onbetaald' && (
                         <button className="customer-invoices-btn-betalen">Betalen</button>
                       )}
