@@ -148,7 +148,8 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
     onNavigate("/");
   };
 
-  const handleNavigation = (path) => {
+  const handleNavigation = (path, label) => {
+    localStorage.setItem("currentPage", label);
     if (onNavigate) {
       onNavigate(path);
     }
@@ -184,7 +185,7 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
             key={item.id}
             className={`sidebar-nav-item ${isActive(item.path) ? "active" : ""
               }`}
-            onClick={() => handleNavigation(item.path)}
+            onClick={() => handleNavigation(item.path, item.label)}
             title={item.description}
           >
             <img className="sidebar-nav-icon" src={item.image} />
@@ -192,7 +193,7 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
           </div>
         ))}
 
-        <div className="logout-btn-bottomn">
+        <div className="logout-btn-bottom">
           <div
             className="sidebar-nav-item logout-item"
             onClick={() => handleLogout()}

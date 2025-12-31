@@ -66,6 +66,17 @@
   padding-bottom: 12px;
 }
 
+.dashboard-link {
+  color: #2196f3;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dashboard-link:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 .plan-apk-button {
   margin-top: 12px;
   padding: 10px 16px;
@@ -91,7 +102,8 @@
   padding: 16px;
   background-color: #f8f9fa;
   border-radius: 6px;
-  border: 1px solid #e3e8f0;
+  border: 1px solid #a6c3f3;
+  min-width: 100%;
   border-left: 4px solid #4a90e2;
   margin-bottom: 12px;
 }

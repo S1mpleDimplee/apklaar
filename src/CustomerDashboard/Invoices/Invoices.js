@@ -70,8 +70,8 @@ const InvoicesCustomer = () => {
               className="customer-invoices-status-filter"
             >
               <option value="">Status</option>
-              <option value="Betaald">Betaald</option>
-              <option value="Onbetaald">Onbetaald</option>
+              <option value="betaald">Betaald</option>
+              <option value="onbetaald">Onbetaald</option>
             </select>
           </div>
         </div>

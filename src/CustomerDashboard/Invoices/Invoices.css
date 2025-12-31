@@ -44,7 +44,7 @@
 .customer-invoices-status-filter {
     width: 100%;
     padding: 0.625rem 1rem;
-    font-size: 14px;
+    font-size: 16px;
     border: 1px solid #d1d5db;
     border-radius: 4px;
     background-color: white;
@@ -68,7 +68,7 @@
 .customer-invoices-no-results {
     text-align: center;
     padding: 1.5rem;
-    font-size: 14px;
+    font-size: 20px;
     color: #6b7280;
 }
 
@@ -86,7 +86,7 @@
 .customer-invoices-table-header {
     padding: 1rem 1.5rem;
     text-align: left;
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
     color: #374151;
     border-bottom: 1px solid #e5e7eb;
@@ -104,7 +104,7 @@
 
 .customer-invoices-table-cell {
     padding: 1rem 1.5rem;
-    font-size: 14px;
+    font-size: 16px;
     color: #1f2937;
 }
 
