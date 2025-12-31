@@ -34,11 +34,35 @@
   transition: all 0.2s;
 }
 
+.car-detail-input {
+  font-size: 14px;
+  border: none;
+  border-bottom: #0a72928e 2px solid;
+}
+
+.car-detail-input:focus {
+  outline: none;
+  border-bottom: #0a729280 2px solid;
+}
+
 .car-tab.active {
   background-color: white;
   border-bottom: #5b92ea 2px solid;
   color: #333;
   font-weight: 500;
+}
+
+.car-tabs-editing input {
+  border: none;
+  border-bottom: #0a7292 2px solid;
+  color: #333;
+  font-weight: 500;
+}
+
+.car-tabs-editing input:focus {
+  border: none;
+  outline: none;
+  border-bottom: #0a7292 2px solid;
 }
 
 .car-tab:hover:not(.active) {
