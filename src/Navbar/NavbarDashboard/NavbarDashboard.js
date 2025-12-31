@@ -1,7 +1,9 @@
 import React from "react";
 import "./NavbarDashboard.css";
 
-const NavbarDashboard = ({userImage }) => {
+const NavbarDashboard = ({ userImage }) => {
+
+  const currentPage = localStorage.getItem("currentPage") || "Dashboard";
 
   const username = JSON.parse(localStorage.getItem("userdata"))?.firstName;
 
@@ -15,7 +17,7 @@ const NavbarDashboard = ({userImage }) => {
               Home
             </span>
             <span className="breadcrumb-separator">/</span>
-            <span className="breadcrumb-current">Dashboard</span>
+            <span className="breadcrumb-current">{currentPage}</span>
           </div>
 
           {/* User Profile Section */}

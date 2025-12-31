@@ -51,6 +51,21 @@
   padding: 20px 0;
 }
 
+.logout-item {
+  font-size: 16px !important;
+  margin-top: auto;
+  border-radius: 8px;
+  background-color: rgba(43, 40, 51, 0.24);
+  text-align: centerrgba(26, 103, 167, 0.24)
+}
+
+.logout-btn-bottom {
+  margin-top: 40px;
+  display: flex;
+  justify-self: center;
+  align-self: flex-end;
+}
+
 .sidebar-nav-item {
   display: flex;
   align-items: center;

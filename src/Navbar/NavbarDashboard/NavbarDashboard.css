@@ -7,8 +7,11 @@
 
 
 .breadcrumb {
-  display: flex;
-  align-items: center;
+  margin-top: 14px;
+  margin-bottom: -30px;
+  align-items: center !important;
+  font-size: 20px !important;
+  justify-items: center !important;
   gap: 0.5rem;
   color: #6b7280;
 }
@@ -64,9 +67,7 @@
     padding: 0.75rem 0;
   }
 
-  .breadcrumb {
-    font-size: 0.875rem;
-  }
+  .breadcrumb {}
 
   .user-name {
     display: none;
