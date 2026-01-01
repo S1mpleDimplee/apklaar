@@ -73,7 +73,8 @@ const InvoicesCustomer = () => {
         action: 'create-checkout-session',
         invoiceid: invoiceId,
         invoicename: invoiceName,
-        invoicecost: invoiceCost
+        invoicecost: invoiceCost,
+        userid: JSON.parse(localStorage.getItem('userdata')).userid
       });
 
       console.log('Create checkout response:', response);
