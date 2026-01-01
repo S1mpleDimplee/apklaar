@@ -45,6 +45,8 @@ function AppContent() {
     "/dashboard/berichten",
     "/dashboard/afspraken",
     "/dashboard/facturen",
+    "/dashboard/facturen/betaling-mislukt",
+    "/dashboard/facturen/betaling-gelukt",
     "/dashboard/rooster",
     "/dashboard/rooster/afspraakinformatie",
     "/dashboard/klanten",
@@ -166,6 +168,8 @@ function AppContent() {
                       element={<CustomerNotifications />}
                     />
                     <Route path="/dashboard/facturen" element={<InvoicesCustomer />} />
+                    <Route path="/dashboard/facturen/betaling-mislukt" element={<InvoicesCustomer />} />
+                    <Route path="/dashboard/facturen/betaling-gelukt" element={<InvoicesCustomer />} />
                   </>
                 )}
 

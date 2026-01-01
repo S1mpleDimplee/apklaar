@@ -2,15 +2,35 @@ import React, { useState, useEffect } from 'react';
 import './Invoices.css';
 import apiCall from '../../Calls/calls';
 import downloadApiCall from '../../Calls/downloadCall';
+import { useToast } from '../../toastmessage/toastmessage';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const InvoicesCustomer = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [invoices, setInvoices] = useState([{}]);
+  const [payingInvoice, setPayingInvoice] = useState(null);
+
+  const { openToast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+
+    const urlParams = new URLSearchParams(location.search);
+    const sessionId = urlParams.get('session_id');
+
+    if (sessionId) {
+      if (location.pathname.includes('betaling-gelukt')) {
+        verifyPayment(sessionId);
+      } else if (location.pathname.includes('betaling-mislukt')) {
+        openToast('Betaling geannuleerd');
+        localStorage.removeItem('pendingInvoiceId');
+        navigate('/dashboard/facturen', { replace: true });
+      }
+    }
+  }, [location]);
 
   const fetchInvoices = async () => {
     const response = await apiCall('fetchinvoices', {
@@ -35,12 +55,67 @@ const InvoicesCustomer = () => {
       );
 
       if (!response.isSuccess) {
-        alert('Er is een fout opgetreden bij het downloaden van de factuur');
+        openToast('Er is een fout opgetreden bij het downloaden van de factuur');
       }
 
     } catch (error) {
       console.error('Error downloading invoice:', error);
-      alert('Er is een fout opgetreden bij het downloaden van de factuur');
+      openToast('Er is een fout opgetreden bij het downloaden van de factuur');
+    }
+  };
+
+  const handlePayment = async (invoiceId, invoiceName, invoiceCost) => {
+    setPayingInvoice(invoiceId);
+    localStorage.setItem('pendingInvoiceId', invoiceId);
+
+    try {
+      const response = await apiCall('stripe_payment', {
+        action: 'create-checkout-session',
+        invoiceid: invoiceId,
+        invoicename: invoiceName,
+        invoicecost: invoiceCost
+      });
+
+      console.log('Create checkout response:', response);
+
+      if (response.isSuccess) {
+        const checkoutUrl = response.data?.checkoutUrl || response.checkoutUrl;
+
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
+        } else {
+          openToast('Er is iets fout gegaan bij het verwerken van de betaling');
+          setPayingInvoice(null);
+        }
+      } else {
+        openToast('Er is een fout opgetreden bij het aanmaken van de betaling');
+        setPayingInvoice(null);
+      }
+    } catch (error) {
+      openToast('Er is een fout opgetreden bij het aanmaken van de betaling');
+      setPayingInvoice(null);
+    }
+  };
+
+  const verifyPayment = async (sessionId) => {
+    try {
+      const response = await apiCall('stripe_payment', {
+        action: 'verify-payment',
+        session_id: sessionId,
+        invoiceid: localStorage.getItem('pendingInvoiceId'),
+      });
+
+
+      if (response.isSuccess) {
+        openToast('Betaling succesvol verwerkt!');
+        localStorage.removeItem('pendingInvoiceId');
+        fetchInvoices();
+      } else {
+        openToast(response.message || 'Betaling kon niet worden geverifieerd');
+      }
+      navigate('/dashboard/facturen', { replace: true });
+    } catch (error) {
+      openToast('Er is een fout opgetreden bij het verifiëren van de betaling');
     }
   };
 
@@ -119,7 +194,13 @@ const InvoicesCustomer = () => {
                         Inzien
                       </button>
                       {invoice.status === 'onbetaald' && (
-                        <button className="customer-invoices-btn-betalen">Betalen</button>
+                        <button
+                          className="customer-invoices-btn-betalen"
+                          onClick={() => handlePayment(invoice.invoiceid, invoice.description, invoice.cost)}
+                          disabled={payingInvoice === invoice.invoiceid}
+                        >
+                          {payingInvoice === invoice.invoiceid ? 'Laden...' : 'Betalen'}
+                        </button>
                       )}
                     </div>
                   </td>
