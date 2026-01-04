@@ -322,7 +322,7 @@ const CarDetails = () => {
                   )}
                 </div>
                 <div className="car-detail-row">
-                  <span className="car-detail-label">color</span>
+                  <span className="car-detail-label">Kleur</span>
                   {isEditing ? (
                     <input
                       type="text"
