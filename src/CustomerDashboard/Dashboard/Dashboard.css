@@ -223,6 +223,11 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-self: center;
 }
 
 .notification-item {
@@ -327,6 +332,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   color: #999;
   font-style: italic;
+}
+
+.empty-content div {
+  margin-top: 20vh;
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

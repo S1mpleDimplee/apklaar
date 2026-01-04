@@ -1,7 +1,6 @@
 /* Main Container */
 .customer-invoices-main-content {
     flex: 1;
-    min-height: 100vh;
 }
 
 .customer-invoices-content-area {
