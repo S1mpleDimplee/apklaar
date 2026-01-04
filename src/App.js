@@ -25,6 +25,7 @@ import AppointmentInfo from "./MechanicDashboard/AppointmentInfo/AppointmentInfo
 import ManagerDashboard from "./ManagerDashboard/Dashboard/Dashboard";
 import ManagerInvoices from "./ManagerDashboard/Invoices/invoices";
 import ManagerTimeTable from "./ManagerDashboard/TimeTable/TimeTable";
+import ManagerUsers from "./ManagerDashboard/Gebruikers/ManagersUsers";
 import Sidebar from "./Navbar/SidebarDashboard/Sidebar"; // Import the new Sidebar component
 import NavbarDashboard from "./Navbar/NavbarDashboard/NavbarDashboard";
 import InvoicesCustomer from "./CustomerDashboard/Invoices/Invoices";
@@ -199,6 +200,10 @@ function AppContent() {
                     <Route
                       path="/dashboard/rooster"
                       element={<ManagerTimeTable />}
+                    />
+                    <Route
+                      path="/dashboard/gebruikers"
+                      element={<ManagerUsers />}
                     />
                   </>
                 )}

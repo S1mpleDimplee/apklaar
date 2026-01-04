@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import './ManagerUsers.css';
+import './ManagersUsers.css';
 
 const roleMap = {
   1: 'Klant',

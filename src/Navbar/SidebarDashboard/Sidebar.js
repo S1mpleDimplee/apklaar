@@ -3,6 +3,7 @@ import "./Sidebar.css";
 import dashboard from "./media/dashboard.svg";
 import car from "./media/car.svg";
 import invoice from "./media/invoice.svg";
+import users from "./media/users.png";
 import notification from "./media/notification.svg";
 import calendar from "./media/notification.svg";
 import apklaar_white from "./media/apklaar_white.png";
@@ -105,7 +106,7 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
       {
         id: "gebruikers",
         label: "Gebruikers",
-        image: "👥",
+        image: users,
         path: "/dashboard/gebruikers",
         description: "Personeel beheer",
       },
@@ -115,14 +116,7 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
         image: "📈",
         path: "/dashboard/rapporten",
         description: "Business intelligence",
-      },
-      {
-        id: "instellingen",
-        label: "Instellingen",
-        image: "⚙️",
-        path: "/dashboard/instellingen",
-        description: "Systeembeheer",
-      },
+      }
     ],
   };
 
