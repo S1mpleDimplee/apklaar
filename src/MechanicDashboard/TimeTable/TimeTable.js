@@ -4,12 +4,13 @@ import './TimeTable.css';
 import {
   getISOWeek,
   startOfISOWeek,
-  endOfISOWeek,
-  setISOWeek,
+  addDays,
   getISOWeeksInYear,
   format,
-  addDays
+  parseISO,
+  isSameDay
 } from 'date-fns';
+import { nl } from 'date-fns/locale';
 import postCall from '../../Calls/calls';
 
 const MechanicTimeTable = () => {
@@ -18,64 +19,35 @@ const MechanicTimeTable = () => {
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Calculate the Monday and Friday of current ISO week
-  const monday = startOfISOWeek(setISOWeek(new Date(currentYear, 0, 1), currentWeek));
-  const friday = addDays(monday, 4); // 5 weekdays
+  // Calculate the Monday of the selected week
+  const monday = startOfISOWeek(addDays(new Date(currentYear, 0, 4), (currentWeek - 1) * 7));
+  const weekDates = Array.from({ length: 5 }, (_, i) => addDays(monday, i));
 
-  const weekDates = Array.from({ length: 5 }, (_, i) =>
-    format(addDays(monday, i), 'yyyy-MM-dd')
-  );
-
-  const weekLabels = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
-
-  // Fetch all appointments for the week at once
   const fetchAppointmentsForWeek = async () => {
     try {
       setLoading(true);
-      setError(null);
-
       const loggedInData = JSON.parse(localStorage.getItem('userdata'));
-      if (!loggedInData?.userid) {
-        setError('Gebruiker niet ingelogd');
-        setAppointments([]);
-        return;
-      }
-
-      const response = await postCall('getappointmentsforweek', {
-        mechanicId: loggedInData.userid,
-        startDate: format(monday, 'yyyy-MM-dd'),
-        endDate: format(friday, 'yyyy-MM-dd')
+      const response = await postCall('getAppointmentsForWeek', {
+        week: currentWeek,
+        year: currentYear,
+        mechanicId: loggedInData?.userid
       });
 
-      if (!response?.isSuccess) {
-        setError(response?.message || 'Kon afspraken niet ophalen');
-        setAppointments([]);
-        return;
+      if (response?.isSuccess) {
+        const transformed = response.data.map(appt => {
+          const repairs = JSON.parse(appt.repairs || '[]');
+          const isAPK = repairs.some(r => r.repairationType === 'APK-Keuring');
+          return {
+            ...appt,
+            displayType: isAPK ? 'APK-Keuring' : `Reparatie (${appt.totalLaborTime || 0})`,
+            isAPK: isAPK
+          };
+        });
+        setAppointments(transformed);
       }
-
-      // Transform data for frontend
-      const transformed = response.data.map(appt => {
-        const repairs = JSON.parse(appt.repairs || '[]');
-        const hasAPK = repairs.some(r => r.repairationType === 'APK-Keuring');
-
-        return {
-          id: appt.aid,
-          date: appt.appointmentDate,
-          time: appt.appointmentTime.slice(0, 5),
-          type: hasAPK ? 'APK-Keuring' : `Reparatie (${appt.totalLaborTime}u)`,
-          customer: appt.userid,
-          status: appt.status
-        };
-      });
-
-      setAppointments(transformed);
-
     } catch (err) {
-      console.error(err);
-      setError('Fout bij het ophalen van afspraken');
-      setAppointments([]);
+      console.error('Error fetching appointments:', err);
     } finally {
       setLoading(false);
     }
@@ -85,14 +57,16 @@ const MechanicTimeTable = () => {
     fetchAppointmentsForWeek();
   }, [currentWeek, currentYear]);
 
-  // Week navigation
   const navigateWeek = (dir) => {
     let newWeek = dir === 'next' ? currentWeek + 1 : currentWeek - 1;
     let newYear = currentYear;
     const totalWeeks = getISOWeeksInYear(new Date(currentYear, 0, 1));
 
     if (newWeek > totalWeeks) { newWeek = 1; newYear++; }
-    if (newWeek < 1) { newYear--; newWeek = getISOWeeksInYear(new Date(newYear, 0, 1)); }
+    if (newWeek < 1) { 
+      newYear--; 
+      newWeek = getISOWeeksInYear(new Date(newYear, 0, 1)); 
+    }
 
     setCurrentWeek(newWeek);
     setCurrentYear(newYear);
@@ -100,50 +74,55 @@ const MechanicTimeTable = () => {
 
   return (
     <div className="planner-container">
-      <div className="planner-header">
-        <div className="planner-breadcrumb">
-          <span>Dashboard</span> / <span>Afspraken</span>
-        </div>
-      </div>
-
       <div className="planner-main-content">
+        
+        {/* Date Selector Header */}
         <div className="planner-date-header">
           <div className="planner-date-card">
-            <div>Week {currentWeek}, {currentYear}</div>
-            <div>
-              <button onClick={() => navigateWeek('prev')}>← Vorige</button>
-              <button onClick={() => navigateWeek('next')}>Volgende →</button>
+            <div className="planner-week-label">Week {currentWeek}, {currentYear}</div>
+            <div className="planner-nav-group">
+              <button className="nav-btn" onClick={() => navigateWeek('prev')}>← Vorige</button>
+              <button className="nav-btn" onClick={() => navigateWeek('next')}>Volgende →</button>
             </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="planner-loading">Afspraken laden...</div>
-        ) : error ? (
-          <div className="planner-error">{error}</div>
-        ) : appointments.length === 0 ? (
-          <div className="planner-no-appointments">Geen afspraken deze week</div>
+          <div className="loading-state">Laden...</div>
         ) : (
-          <div className="planner-appointments-grid">
-            {appointments.map(appt => (
-              <div
-                key={appt.id}
-                className={`planner-appointment-card ${appt.type.includes('APK') ? 'apk' : 'repair'}`}
-              >
-                <div className="planner-appointment-header">
-                  <span>{appt.type}</span>
-                  <span>{appt.time}</span>
+          weekDates.map((date, idx) => {
+            const dayAppointments = appointments.filter(a => isSameDay(parseISO(a.appointmentDate), date));
+            
+            return (
+              <div key={idx} className="day-section">
+                <div className="day-card-header">
+                  <div className="day-name">{format(date, 'EEEE', { locale: nl })}</div>
+                  <div className="day-full-date">{format(date, 'dd MMM yyyy')}</div>
                 </div>
-                <div className="planner-appointment-status">
-                  <span className="planner-status-badge">{appt.status}</span>
-                  <span>{appt.date}</span>
-                </div>
-                <div className="planner-appointment-vehicle">
-                  🚗 {appt.customer}
+
+                <div className="appointments-grid">
+                  {dayAppointments.length > 0 ? (
+                    dayAppointments.map((appt) => (
+                      <div key={appt.aid} className={`appt-card ${appt.isAPK ? 'apk-border' : 'repair-border'}`}>
+                        <div className="appt-top">
+                          <span className="appt-type">{appt.displayType}</span>
+                          <span className="appt-time">{appt.appointmentTime.slice(0,5)} - {appt.endTime || '10:30'}</span>
+                        </div>
+                        <div className="appt-plate">
+                          <span className="plate-icon">XYZ 000</span> {appt.licensePlate || '17-GZ-7B'}
+                        </div>
+                        <div className="appt-vehicle">
+                          <span className="car-icon">🚗</span> {appt.carModel || 'VOLVO'}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-appt">Geen afspraken voor deze dag</div>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
+            );
+          })
         )}
       </div>
     </div>
