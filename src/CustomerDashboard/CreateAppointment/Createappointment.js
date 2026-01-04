@@ -122,11 +122,12 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                   </option>
                 ))}
               </select>
+              <button onClick={addRepair} className="repairs-add-btn">
+                Toevoegen+
+              </button>
             </div>
 
-            <button onClick={addRepair} className="repairs-add-btn">
-              Toevoegen+
-            </button>
+
 
             <div className="repairs-table-container">
               <table className="repairs-table">
@@ -191,9 +192,7 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
             </div>
           </div>
 
-          {/* Right side - Car info and appointment */}
           <div className="repairs-sidebar">
-            {/* Car info */}
             <div className="repairs-car-info">
               <h3 className="repairs-car-title">
                 Auto <span>{carData?.brand} {carData?.model} {carData?.buildyear}</span>
@@ -201,32 +200,31 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
               <div className="repairs-car-details">
                 <div className="repairs-detail-row">
                   <span>Merk</span>
-                  <strong>{carData?.brand || 'Toyota'}</strong>
+                  <strong>{carData?.brand || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Model</span>
-                  <strong>{carData?.model || 'STARLET'}</strong>
+                  <strong>{carData?.model || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Bouw jaar</span>
-                  <strong>{carData?.buildyear || '1999'}</strong>
+                  <strong>{carData?.buildyear || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Kenteken</span>
-                  <strong>{carData?.licensePlate || 'STARLET'}</strong>
+                  <strong>{carData?.licensePlate || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Laatste keuring</span>
-                  <strong>{carData?.lastInspection || '19-11-2024'}</strong>
+                  <strong>{carData?.lastInspection || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Geregistreerd sinds</span>
-                  <strong>{carData?.registeredSince || '11-10-2024'}</strong>
+                  <strong>{carData?.registeredSince || ''}</strong>
                 </div>
               </div>
             </div>
 
-            {/* Appointment scheduling */}
             <div className="repairs-appointment">
               <h3 className="repairs-appointment-title">Datum | Tijd</h3>
               <div className="repairs-appointment-form">

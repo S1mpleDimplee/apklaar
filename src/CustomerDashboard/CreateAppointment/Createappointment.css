@@ -44,7 +44,6 @@
 
 .repairs-modal-title {
     padding: 1.5rem;
-    border-bottom: 1px solid #e5e7eb;
     font-size: 1.5rem;
     font-weight: bold;
     color: #1f2937;
@@ -60,7 +59,6 @@
     flex: 1;
 }
 
-/* Left side - Repairs section */
 .repairs-section {
     display: flex;
     flex-direction: column;
@@ -68,14 +66,15 @@
 
 .repairs-type-select {
     margin-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
 }
 
 .repairs-select {
-    width: 100%;
+    width: 30%;
     padding: 0.5rem 0.75rem;
     border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 0.875rem;
     background-color: white;
     cursor: pointer;
 }
@@ -102,7 +101,7 @@
 }
 
 .repairs-table-container {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #c0c0c0;
     border-radius: 8px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -126,7 +125,7 @@
 }
 
 .repairs-table tbody tr {
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #c0c0c0;
 }
 
 .repairs-table tbody tr:hover {
@@ -202,7 +201,7 @@
 }
 
 .repairs-car-info {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #c0c0c0;
     border-radius: 8px;
     padding: 1rem;
     background-color: #f9fafb;
@@ -213,7 +212,7 @@
     font-size: 1.125rem;
     margin: 0 0 0.75rem 0;
     padding-bottom: 0.5rem;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #c0c0c0;
 }
 
 .repairs-car-title span {
@@ -243,7 +242,7 @@
 }
 
 .repairs-appointment {
-    border: 1px solid #e5e7eb;
+    border: 1px solid #c0c0c0;
     border-radius: 8px;
     padding: 1rem;
 }
