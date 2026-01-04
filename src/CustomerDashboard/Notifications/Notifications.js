@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './Notifications.css';
 import apiCall from '../../Calls/calls';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays } from '@fortawesome/free-regular-svg-icons';
+import { faCalendarDay } from '@fortawesome/free-solid-svg-icons';
 
 const CustomerNotifications = () => {
 
@@ -32,7 +35,7 @@ const CustomerNotifications = () => {
               <div className="notification-content">
                 <div className="notification-title-row">
                   <h3 className="notification-title">{notification.title}</h3>
-                  <span className="notification-timestamp">{notification.date}</span>
+                  <span className="notification-timestamp"><FontAwesomeIcon icon={faCalendarDay} /> {notification.date}</span>
                 </div>
                 <p className="notification-message">{notification.description}</p>
               </div>
