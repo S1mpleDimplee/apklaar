@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TimeTable.css';
 
 const ManagerTimeTable = () => {
@@ -10,56 +10,69 @@ const ManagerTimeTable = () => {
     dateRange: 'deze-week'
   });
 
-  // Sample data for the week view
-  const weekData = [
-    {
-      day: 'Maandag',
-      date: '27 Dec 2025',
-      appointments: [
-        { id: 1, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' },
-        { id: 2, type: 'Reparatie (3)', time: '11:00-14:00', code: '33-1A-342', vehicle: 'BMW', status: 'bezet', mechanic: 'Piet Smit' },
-        { id: 3, type: 'APK-Keuring', time: '15:00-15:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' }
-      ]
-    },
-    {
-      day: 'Dinsdag',
-      date: '28 Dec 2025',
-      appointments: [
-        { id: 4, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' },
-        { id: 5, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Piet Smit' },
-        { id: 6, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' }
-      ]
-    },
-    {
-      day: 'Woensdag',
-      date: '29 Dec 2025',
-      appointments: [
-        { id: 7, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Piet Smit' },
-        { id: 8, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' },
-        { id: 9, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Piet Smit' }
-      ]
-    },
-    {
-      day: 'Donderdag',
-      date: '30 Dec 2025',
-      appointments: [
-        { id: 10, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' },
-        { id: 11, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Piet Smit' },
-        { id: 12, type: 'APK-Keuring', time: '10:00 - 10:30', code: '17-02-78', vehicle: 'VOLVO', status: 'bezet', mechanic: 'Jan Bakker' }
-      ]
-    }
-  ];
-
+  const [weekData, setWeekData] = useState([]);
   const mechanics = ['alle', 'Jan Bakker', 'Piet Smit', 'Maria Jansen', 'Tom van Berg'];
-  const serviceTypes = ['alle', 'APK-Keuring', 'Reparatie', 'Onderhoud', 'Motor olie'];
-  const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'];
+const serviceTypes = ['alle', 'APK-Keuring', 'Reparatie', 'Onderhoud', 'Motor olie'];
+const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'];
+
+
+  useEffect(() => {
+    fetch('http://localhost/apklaarAPI/router/router.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        function: 'getallappointments'
+      })
+    })
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          setWeekData(mapAppointmentsToWeek(json.data));
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+
+  const mapAppointmentsToWeek = (appointments) => {
+    const days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
+
+    const week = days.map(day => ({
+      day,
+      date: '',
+      appointments: []
+    }));
+
+    appointments.forEach(a => {
+      const dateObj = new Date(a.date);
+      const dayIndex = dateObj.getDay() - 1; // Monday = 0
+
+      if (dayIndex >= 0 && dayIndex < week.length) {
+        week[dayIndex].date = dateObj.toLocaleDateString('nl-NL');
+
+        week[dayIndex].appointments.push({
+          id: a.aid,
+          type: a.apk ? 'APK-Keuring' : 'Reparatie',
+          time: `${a.time} (${a.duration} min)`,
+          code: a.apk ?? '',
+          vehicle: `${a.firstname} ${a.lastname}`,
+          status: a.status,
+          mechanic: a.mechanic ?? 'Onbekend'
+        });
+      }
+    });
+
+    return week;
+  };
 
   const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value
-    }));
-  };
+  setFilters(prev => ({
+    ...prev,
+    [filterType]: value
+  }));
+};
+
 
   // Filter appointments based on current filters
   const filteredWeekData = weekData.map(day => ({
