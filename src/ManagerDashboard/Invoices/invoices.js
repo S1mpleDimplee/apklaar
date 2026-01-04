@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Invoices.css';
 
 const ManagerInvoices = () => {
@@ -9,68 +9,34 @@ const ManagerInvoices = () => {
     amountRange: 'alle'
   });
 
-  const [invoices, setInvoices] = useState([
-    {
-      id: 'U-00001',
-      name: 'Edward robinson',
-      invoiceDate: '7-20-2025',
-      amount: '€32,12',
-      paidDate: '7-20-2025',
-      status: 'Betaald',
-      customerEmail: 'edward@example.com',
-      services: 'APK-Keuring'
-    },
-    {
-      id: 'U-00002', 
-      name: 'Piet jan',
-      invoiceDate: '7-20-2025',
-      amount: '€32,12',
-      paidDate: '7-20-2025',
-      status: 'Onbetaald',
-      customerEmail: 'piet@example.com',
-      services: 'Reparatie voorband'
-    },
-    {
-      id: 'U-00003',
-      name: 'Jochem meijer', 
-      invoiceDate: '7-20-2025',
-      amount: '€32,12',
-      paidDate: '7-20-2025',
-      status: 'Onbetaald',
-      customerEmail: 'jochem@example.com',
-      services: 'APK-Keuring + Onderhoud'
-    },
-    {
-      id: 'U-00004',
-      name: 'Glo',
-      invoiceDate: '7-20-2025', 
-      amount: '€32,12',
-      paidDate: '7-20-2025',
-      status: 'Betaald',
-      customerEmail: 'glo@example.com',
-      services: 'Motor olie verversen'
-    },
-    {
-      id: 'U-00005',
-      name: 'Maria van Berg',
-      invoiceDate: '8-15-2025',
-      amount: '€148,50',
-      paidDate: '-',
-      status: 'Onbetaald',
-      customerEmail: 'maria@example.com',
-      services: 'Remmen vervangen'
-    },
-    {
-      id: 'U-00006',
-      name: 'Tom Hendriks',
-      invoiceDate: '8-18-2025',
-      amount: '€67,80',
-      paidDate: '8-20-2025',
-      status: 'Betaald',
-      customerEmail: 'tom@example.com',
-      services: 'APK-Keuring'
-    }
-  ]);
+  const [invoices, setInvoices] = useState([]);
+  
+  useEffect(() => {
+    fetch('http://localhost/apklaarAPI/router/router.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include', 
+      body: JSON.stringify({ function: 'fetchinvoices' })
+    })
+      .then(res => res.json())
+      .then(json => {
+        if (json.success) {
+          // Map DB invoice structure to your React structure
+          const mapped = json.data.map(inv => ({
+            id: inv.invoiceid,
+            name: inv.userid, // you could map to full name if you have a join with users
+            invoiceDate: inv.date,
+            amount: `€${parseFloat(inv.cost).toFixed(2)}`,
+            paidDate: inv.payed_on ?? '-',
+            status: inv.status === 'betaald' ? 'Betaald' : 'Onbetaald',
+            customerEmail: '', // you can fetch this if needed
+            services: inv.description,
+          }));
+          setInvoices(mapped);
+        }
+      })
+      .catch(err => console.error('Error fetching invoices:', err));
+  }, []);
 
   const statusOptions = ['alle', 'Betaald', 'Onbetaald', 'Vervallen'];
   const dateRangeOptions = ['alle', 'Deze week', 'Deze maand', 'Vorige maand'];
