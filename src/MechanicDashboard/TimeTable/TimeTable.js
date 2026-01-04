@@ -1,162 +1,129 @@
 // src/MechanicDashboard/TimeTable/TimeTable.js
 import React, { useState, useEffect } from 'react';
 import './TimeTable.css';
-import { getISOWeek, startOfISOWeek, setISOWeek, addDays, getISOWeeksInYear } from 'date-fns';
+import {
+  getISOWeek,
+  startOfISOWeek,
+  addDays,
+  getISOWeeksInYear,
+  format,
+  parseISO,
+  isSameDay
+} from 'date-fns';
+import { nl } from 'date-fns/locale';
 import postCall from '../../Calls/calls';
-import { useToast } from '../../toastmessage/toastmessage';
-import CreateAppointmentModal from '../Components/CreateAppointmentModal';
 
 const MechanicTimeTable = () => {
   const today = new Date();
   const [currentWeek, setCurrentWeek] = useState(getISOWeek(today));
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const { openToast } = useToast();
-
-  const weekDates = Array.from({ length: 5 }, (_, i) => {
-    const monday = startOfISOWeek(setISOWeek(new Date(currentYear, 0, 1), currentWeek));
-    return addDays(monday, i).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-  });
-
-  const weekData = {
-    days: ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'],
-    dates: weekDates,
-    timeSlots: [
-      '08:00 - 08:30','08:30 - 09:00','09:00 - 09:30','09:30 - 10:00',
-      '10:00 - 10:30','10:30 - 11:00','11:00 - 11:30','11:30 - 12:00',
-      '12:00 - 12:30','12:30 - 13:00','13:00 - 13:30','13:30 - 14:00',
-      '14:00 - 14:30','14:30 - 15:00','15:00 - 15:30'
-    ]
-  };
-
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
-  // Fetch appointments for current week
-  const fetchAppointmentsForWeek = async (week, year) => {
+  // Calculate the Monday of the selected week
+  const monday = startOfISOWeek(addDays(new Date(currentYear, 0, 4), (currentWeek - 1) * 7));
+  const weekDates = Array.from({ length: 5 }, (_, i) => addDays(monday, i));
+
+  const fetchAppointmentsForWeek = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const loggedInData = JSON.parse(localStorage.getItem('loggedInData'));
-      if (!loggedInData || !loggedInData.userid) {
-        setError('Gebruiker niet ingelogd');
-        setLoading(false);
-        return;
-      }
+      const loggedInData = JSON.parse(localStorage.getItem('userdata'));
+      const response = await postCall('getAppointmentsForWeek', {
+        week: currentWeek,
+        year: currentYear,
+        mechanicId: loggedInData?.userid
+      });
 
-      const userid = loggedInData.userid;
-      const response = await postCall('getAppointmentsForWeek', { week, year, userid });
-
-      if (response.isSuccess && response.data) {
-        // Transform the data to match the expected format
-        const transformedAppointments = response.data.map(appt => ({
-          id: appt.id || appt.appointmentid,
-          type: appt.apk ? 'APK-Keuring' : `Reparatie (${appt.duration}h)`,
-          time: appt.time,
-          date: new Date(appt.date).toLocaleDateString('nl-NL'),
-          licensePlate: appt.licensePlate || appt.kenteken || 'Onbekend',
-          status: appt.status || 'bezet'
-        }));
-        setAppointments(transformedAppointments);
-      } else {
-        setError(response.message || 'Kon afspraken niet ophalen');
-        setAppointments([]);
+      if (response?.isSuccess) {
+        const transformed = response.data.map(appt => {
+          const repairs = JSON.parse(appt.repairs || '[]');
+          const isAPK = repairs.some(r => r.repairationType === 'APK-Keuring');
+          return {
+            ...appt,
+            displayType: isAPK ? 'APK-Keuring' : `Reparatie (${appt.totalLaborTime || 0})`,
+            isAPK: isAPK
+          };
+        });
+        setAppointments(transformed);
       }
     } catch (err) {
       console.error('Error fetching appointments:', err);
-      setError('Fout bij het ophalen van afspraken');
-      setAppointments([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchAppointmentsForWeek(currentWeek, currentYear); }, []);
-
-  const addThirtyMinutes = (time) => {
-    const [h,m] = time.split(':').map(Number);
-    const d = new Date();
-    d.setHours(h, m + 30);
-    return d.toTimeString().substring(0,5);
-  };
+  useEffect(() => {
+    fetchAppointmentsForWeek();
+  }, [currentWeek, currentYear]);
 
   const navigateWeek = (dir) => {
-    let newWeek = dir === 'next' ? currentWeek+1 : currentWeek-1;
+    let newWeek = dir === 'next' ? currentWeek + 1 : currentWeek - 1;
     let newYear = currentYear;
-    const totalWeeks = getISOWeeksInYear(new Date(currentYear,0,1));
-    if (newWeek > totalWeeks) { newWeek = 1; newYear++; }
-    if (newWeek < 1) { newYear--; newWeek = getISOWeeksInYear(new Date(newYear,0,1)); }
-    setCurrentWeek(newWeek); setCurrentYear(newYear);
-    fetchAppointmentsForWeek(newWeek, newYear);
-  };
+    const totalWeeks = getISOWeeksInYear(new Date(currentYear, 0, 1));
 
-  const handleAppointmentClick = (appointmentId) => {
-    // Handle appointment click - could open edit modal, show details, etc.
-    console.log('Clicked appointment:', appointmentId);
+    if (newWeek > totalWeeks) { newWeek = 1; newYear++; }
+    if (newWeek < 1) { 
+      newYear--; 
+      newWeek = getISOWeeksInYear(new Date(newYear, 0, 1)); 
+    }
+
+    setCurrentWeek(newWeek);
+    setCurrentYear(newYear);
   };
 
   return (
     <div className="planner-container">
-      {/* Header */}
-      <div className="planner-header">
-        <div className="planner-breadcrumb">
-          <span>Dashboard</span>
-          <span className="planner-separator">/</span>
-          <span>Afspraken</span>
-        </div>
-
-        <div className="planner-user-info">
-          <div className="planner-user-avatar"></div>
-          <span className="planner-user-name">Edward robinson</span>
-        </div>
-      </div>
-
-      {/* Main Content */}
       <div className="planner-main-content">
-        {/* Date Header */}
+        
+        {/* Date Selector Header */}
         <div className="planner-date-header">
           <div className="planner-date-card">
-            <div className="planner-day">Week {currentWeek}, {currentYear}</div>
-            <div className="planner-date">
-              <button onClick={()=>navigateWeek('prev')}>← Vorige week</button>
-              <button onClick={()=>navigateWeek('next')}>Volgende week →</button>
+            <div className="planner-week-label">Week {currentWeek}, {currentYear}</div>
+            <div className="planner-nav-group">
+              <button className="nav-btn" onClick={() => navigateWeek('prev')}>← Vorige</button>
+              <button className="nav-btn" onClick={() => navigateWeek('next')}>Volgende →</button>
             </div>
           </div>
         </div>
 
-        {/* Appointments Grid */}
-        <div className="planner-appointments-grid">
-          {loading ? (
-            <div className="planner-loading">Afspraaken laden...</div>
-          ) : error ? (
-            <div className="planner-error">{error}</div>
-          ) : appointments.length === 0 ? (
-            <div className="planner-no-appointments">Geen afspraken gevonden voor deze week.</div>
-          ) : (
-            appointments.map((appointment) => (
-              <div
-                key={appointment.id}
-                className={`planner-appointment-card ${appointment.type === 'Reparatie' ? 'repair' : 'apk'}`}
-                onClick={() => handleAppointmentClick(appointment.id)}
-              >
-                <div className="planner-appointment-header">
-                  <span className="planner-appointment-type">{appointment.type}</span>
-                  <span className="planner-appointment-time">{appointment.time}</span>
+        {loading ? (
+          <div className="loading-state">Laden...</div>
+        ) : (
+          weekDates.map((date, idx) => {
+            const dayAppointments = appointments.filter(a => isSameDay(parseISO(a.appointmentDate), date));
+            
+            return (
+              <div key={idx} className="day-section">
+                <div className="day-card-header">
+                  <div className="day-name">{format(date, 'EEEE', { locale: nl })}</div>
+                  <div className="day-full-date">{format(date, 'dd MMM yyyy')}</div>
                 </div>
 
-                <div className="planner-appointment-status">
-                  <span className="planner-status-badge">{appointment.status}</span>
-                  <span className="planner-appointment-date">{appointment.date}</span>
-                </div>
-
-                <div className="planner-appointment-vehicle">
-                  <div className="planner-car-icon">🚗</div>
-                  <span className="planner-license-plate">{appointment.licensePlate}</span>
+                <div className="appointments-grid">
+                  {dayAppointments.length > 0 ? (
+                    dayAppointments.map((appt) => (
+                      <div key={appt.aid} className={`appt-card ${appt.isAPK ? 'apk-border' : 'repair-border'}`}>
+                        <div className="appt-top">
+                          <span className="appt-type">{appt.displayType}</span>
+                          <span className="appt-time">{appt.appointmentTime.slice(0,5)} - {appt.endTime || '10:30'}</span>
+                        </div>
+                        <div className="appt-plate">
+                          <span className="plate-icon">XYZ 000</span> {appt.licensePlate || '17-GZ-7B'}
+                        </div>
+                        <div className="appt-vehicle">
+                          <span className="car-icon">🚗</span> {appt.carModel || 'VOLVO'}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="no-appt">Geen afspraken voor deze dag</div>
+                  )}
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
