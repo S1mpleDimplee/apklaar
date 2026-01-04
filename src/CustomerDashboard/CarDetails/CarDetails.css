@@ -160,7 +160,6 @@
 .car-right-section {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   align-items: flex-start;
   text-align: right;
 }
@@ -205,8 +204,16 @@
 
 .car-register-prompt {
   margin-top: auto;
+  align-self: end;
+
   font-size: 14px;
   color: #666;
+}
+
+.car-extra-details-section {
+  margin-top: 23.6vh !important;
+  align-self: center;
+  width: 90%;
 }
 
 .car-register-link {

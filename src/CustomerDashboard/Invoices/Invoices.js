@@ -107,7 +107,6 @@ const InvoicesCustomer = () => {
         userid: JSON.parse(localStorage.getItem('userdata')).userid
       });
 
-
       if (response.isSuccess) {
         openToast('Betaling succesvol verwerkt!');
         localStorage.removeItem('pendingInvoiceId');

@@ -163,31 +163,19 @@ const CarDetails = () => {
       <div className="car-content-grid">
         <div className="car-left-section">
           {/* Car Tabs */}
-          {!isEditing && (
-            <div className="car-tabs">
-              {cars.map((car) => (
-                <div
-                  key={car.carid}
-                  className={`car-tab ${selectedCar?.carid === car.carid ? 'active' : ''}`}
-                  onClick={() => handleSelectCar(car)}
-                >
-                  {car.carnickname || `${car.brand} ${car.model}`}
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="car-tabs">
+            {cars.map((car) => (
+              <div
+                key={car.carid}
+                className={`car-tab ${selectedCar?.carid === car.carid ? 'active' : ''}`}
+                onClick={() => { !isEditing && handleSelectCar(car) }}
+              >
+                {car.carnickname || `${car.brand} ${car.model}`}
+              </div>
+            ))}
+          </div>
 
-          {isEditing && selectedCar && (
-            <div className="car-tabs-editing">
-              <input
-                type="text"
-                className={`car-tab ${selectedCar?.carid === selectedCar.carid ? 'active' : ''}`}
-                value={editedCarDetails.carnickname || ''}
-                onChange={(e) => setEditedCarDetails({ ...editedCarDetails, carnickname: e.target.value })}
-                placeholder={`${selectedCar.brand} ${selectedCar.model}`}
-              />
-            </div>
-          )}
+
 
           <div className="car-image-container">
             <img
@@ -314,6 +302,55 @@ const CarDetails = () => {
             </div>
           )}
 
+
+
+          <div className="car-extra-details-section">
+
+            {selectedCar && (
+              <div className="car-details-table">
+                <div className="car-detail-row">
+                  <span className="car-detail-label">Auto bijnaam</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="car-detail-input"
+                      value={editedCarDetails.carnickname || ''}
+                      onChange={(e) => setEditedCarDetails({ ...editedCarDetails, carnickname: e.target.value })}
+                    />
+                  ) : (
+                    <span className="car-detail-value">{selectedCar.carnickname}</span>
+                  )}
+                </div>
+                <div className="car-detail-row">
+                  <span className="car-detail-label">color</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="car-detail-input"
+                      value={editedCarDetails.color}
+                      onChange={(e) => setEditedCarDetails({ ...editedCarDetails, color: e.target.value })}
+                    />
+                  ) : (
+                    <span className="car-detail-value">{selectedCar.color}</span>
+                  )}
+                </div>
+                <div className="car-detail-row">
+                  <span className="car-detail-label">Brandstof</span>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      className="car-detail-input"
+                      value={editedCarDetails.fueltype}
+                      onChange={(e) => setEditedCarDetails({ ...editedCarDetails, fueltype: e.target.value })}
+                    />
+                  ) : (
+                    <span className="car-detail-value">{selectedCar.fueltype}</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+          </div>
           <div className="car-register-prompt">
             <span>Wilt u nog een auto registeren? </span>
             <a onClick={handleOpenPopup} className="car-register-link">
