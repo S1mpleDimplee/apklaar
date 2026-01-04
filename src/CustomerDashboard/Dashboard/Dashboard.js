@@ -3,6 +3,9 @@ import './Dashboard.css';
 import apiCall from '../../Calls/calls';
 import { useNavigate } from 'react-router-dom';
 import CreateAppointment from '../CreateAppointment/Createappointment';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faClock } from '@fortawesome/free-regular-svg-icons';
+import { useToast } from '../../toastmessage/toastmessage';
 
 const DashboardKlant = () => {
   const [notifications, setNotifications] = useState([{}]);
@@ -10,8 +13,12 @@ const DashboardKlant = () => {
   const [lastAPKKeuringData, setLastAPKKeuringData] = useState([]);
   const [upcomingAPKKeuringData, setUpcomingAPKKeuringData] = useState([]);
   const [openInvoices, setOpenInvoices] = useState(0);
+  const [appointments, setAppointments] = useState([]);
+  const [removeAppointmentVerify, setRemoveAppointmentVerify] = useState(false);
 
   const navigate = useNavigate();
+
+  const { openToast } = useToast();
 
   useEffect(() => {
     fetchNotifications();
@@ -23,9 +30,24 @@ const DashboardKlant = () => {
     const response = await apiCall('getNotifications', { userid });
     if (response.isSuccess) {
       setNotifications(response.data);
-
     }
   };
+
+  const cancelAppointment = async (appointmentId) => {
+
+    const response = await apiCall('cancelAppointment', { appointmentId });
+    if (response.isSuccess) {
+      openToast(response.message);
+      fetchDashboardInfo();
+    } else {
+      openToast(response.message);
+    }
+  };
+
+  const editAppointment = (appointmentId) => {
+    // Logic to edit appointment
+    console.log(`Edit appointment with ID: ${appointmentId}`);
+  }
 
   const fetchDashboardInfo = async () => {
     const userid = JSON.parse(localStorage.getItem('userdata')).userid;
@@ -34,16 +56,18 @@ const DashboardKlant = () => {
       setOpenInvoices(response.data.openInvoices);
       setLastAPKKeuringData([response.data.lastAPKCarDate, response.data.lastAPKCarName]);
       setUpcomingAPKKeuringData([response.data.upcomingAPKCarDate, response.data.upcomingAPKCarName]);
-    }
 
+      // Set all appointments at once
+      const nextAppointments = response.data.nextAppointments || [];
+      setAppointments(nextAppointments);
+
+      console.log(nextAppointments);
+    }
   };
 
   return (
     <div className="dashboard-container">
-      {/* Main Content */}
       <div className="main-content">
-
-
         <div className="stats-grid">
           <div className="stat-card blue">
             <h3>Auto status</h3>
@@ -84,17 +108,61 @@ const DashboardKlant = () => {
               ))}
             </div>
             <p className="end-of-list">Meeste 4 recente meldingen, <a onClick={() => navigate("berichten")} className='dashboard-link'>Bekijk alle meldingen</a></p>
-
-
           </div>
-          <div className="content-section">
-            <h2>Volgende APK Keuring</h2>
-            <div className="empty-content">
 
-              <p>U heeft nog geen APK keuringen ingepland. Plan nu uw volgende APK keuring om uw voertuig in topconditie te houden!</p>
-              <button className="plan-apk-button"
-                onClick={() => setShowAppointmentModal(true)}>Plan APK Keuring</button>
+          <div className="content-section">
+            <div className="appointments-header">
+              <h2>Aankomende Afspraken</h2>
+              <span className="plan-apk-text" onClick={() => setShowAppointmentModal(true)}>Afspraak aanmaken</span>
             </div>
+
+            {appointments.length > 0 ? (
+              <div className="appointments-scroll-container">
+
+                {appointments.map((appointment) => (
+                  <div key={appointment.aid} className="appointment-card">
+                    <div className="appointment-header">
+                      <h3>{appointment.carNickname}</h3>
+                      <span className="appointment-brand">{appointment.brand} {appointment.model}</span>
+                    </div>
+                    <div className="appointment-details">
+                      <div className="appointment-datetime">
+                        <FontAwesomeIcon icon={faCalendarDays} />
+                        <span>{appointment.appointmentDate}</span>
+                      </div>
+                      <div className="appointment-datetime">
+                        <FontAwesomeIcon icon={faClock} />
+                        <span>{appointment.appointmentTime}</span>
+                      </div>
+                    </div>
+                    <div className="appointment-footer">
+                      <div>
+                        {/* <button className='appointment-edit' onClick={() => editAppointment(appointment.aid)}> Wijzig</button> */}
+
+                        <button className='appointment-cancel' onClick={() => {
+                          if (!removeAppointmentVerify) {
+                            setRemoveAppointmentVerify(appointment.aid);
+                            openToast("Klik nogmaals op annuleren om de afspraak te annuleren.");
+                          } else if (removeAppointmentVerify === appointment.aid) {
+                            cancelAppointment(appointment.aid);
+                            setRemoveAppointmentVerify(false);
+                          }
+                        }
+                        }>Annuleren</button>
+                      </div>
+                      <span className="appointment-price">€{appointment.totalGrossPrice}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="empty-content">
+                <div>
+                  <p>U heeft nog geen aankomende afspraken.</p>
+                  <button className="plan-apk-button" onClick={() => setShowAppointmentModal(true)}>Plan nu een afspraak</button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

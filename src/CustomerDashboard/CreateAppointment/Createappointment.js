@@ -113,13 +113,14 @@ const CreateAppointment = ({ onClose, carData }) => {
     return gross.toFixed(2);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const data = {
       carId: carData?.carid,
       appointmentDate,
       appointmentTime,
       userid: JSON.parse(localStorage.getItem('userdata')).userid,
       mechanicid: mechanic,
+      carid: selectedCar?.carid,
       repairs: repairs.filter(r => r.repairationType),
       totals: {
         netPrice: totalNet,
@@ -128,12 +129,13 @@ const CreateAppointment = ({ onClose, carData }) => {
       }
     };
 
-    const response = apiCall('createAppointment', data);
+    const response = await apiCall('createAppointment', data);
+
     if (response.isSuccess) {
       openToast('Afspraak succesvol aangemaakt!');
       onClose();
     } else {
-      openToast(response.message || 'Er is een fout opgetreden bij het aanmaken van de afspraak.');
+      openToast(response.message || 'Er is een fout opgetreden bij het aanmaken van de afspraak');
     }
   };
 
@@ -282,6 +284,7 @@ const CreateAppointment = ({ onClose, carData }) => {
                 <input
                   type="date"
                   value={appointmentDate}
+                  min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setAppointmentDate(e.target.value)}
                   className="repairs-date-input"
                 />
@@ -289,9 +292,9 @@ const CreateAppointment = ({ onClose, carData }) => {
                 <div className="repairs-time-input">
                   <input
                     type="number"
-                    min="0"
-                    max="23"
-                    placeholder="22"
+                    min="8"
+                    max="16"
+                    placeholder="8"
                     value={appointmentTime.split(':')[0] || ''}
                     onChange={(e) => {
                       const hour = e.target.value.padStart(2, '0');
@@ -321,7 +324,7 @@ const CreateAppointment = ({ onClose, carData }) => {
                   <select
                     value={mechanic}
                     onChange={(e) => setMechanic(e.target.value)}
-                    className="repairs-select"
+                    className="repairs-select choose-mechanic-select"
                   >
                     <option value="">-</option>
 
