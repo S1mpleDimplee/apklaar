@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './Dashboard.css';
 import apiCall from '../../Calls/calls';
 import { useNavigate } from 'react-router-dom';
+import CreateAppointment from '../CreateAppointment/Createappointment';
 
 const DashboardKlant = () => {
   const [notifications, setNotifications] = useState([{}]);
@@ -97,6 +98,11 @@ const DashboardKlant = () => {
           </div>
         </div>
       </div>
+      {showAppointmentModal && (
+        <CreateAppointment
+          onClose={() => setShowAppointmentModal(false)}
+        />
+      )}
     </div>
   );
 };

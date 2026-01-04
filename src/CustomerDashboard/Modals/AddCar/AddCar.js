@@ -41,10 +41,50 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
-    // Reset file input
     const fileInput = document.getElementById("car-image-input");
     if (fileInput) {
       fileInput.value = "";
+    }
+  };
+
+  const lookupLicensePlate = async () => {
+
+    if (formData.countryCode !== "NL") {
+      return;
+    }
+    try {
+      const formatted = formData.licensePlate.replace(/[\s-]/g, "").toUpperCase();
+
+      const response = await fetch(
+        `https://opendata.rdw.nl/resource/m9d7-ebf2.json?kenteken=${formatted}`
+      );
+
+      const data = await response.json();
+
+      if (data) {
+        const carData = data[0];
+
+        let formattedDate = "";
+        if (carData.vervaldatum_apk) {
+          const dateformatted = carData.vervaldatum_apk;
+          formattedDate = `${dateformatted.substring(6, 8)}-${dateformatted.substring(4, 6)}-${dateformatted.substring(0, 4)}`;
+        }
+
+        setFormData({
+          ...formData,
+          brand: carData.merk || formData.brand,
+          model: carData.handelsbenaming || formData.model,
+          buildyear: carData.datum_eerste_toelating?.substring(0, 4) || formData.buildyear,
+          color: carData.eerste_kleur || formData.color,
+          fuelType: carData.brandstof_omschrijving || formData.fuelType,
+          licensePlate: formatted,
+        });
+
+        openToast("Kenteken gevonden! Gegevens automatisch ingevuld.");
+      } else {
+      }
+    } catch (error) {
+      openToast("Fout bij opzoeken kenteken. Probeer opnieuw.");
     }
   };
 
@@ -147,8 +187,16 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
               </div>
 
               <div className="addcar-field">
-                <label className="addcar-label">Gewicht</label>
-                <input type="text" placeholder="0g" className="addcar-input" />
+                <label className="addcar-label">Willekeurige naam</label>
+                <input
+                  type="text"
+                  value={formData.carNickname}
+                  onChange={(e) =>
+                    setFormData({ ...formData, carNickname: e.target.value })
+                  }
+                  placeholder="Mijn auto naam"
+                  className="addcar-input"
+                />
               </div>
             </div>
 
@@ -165,19 +213,6 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
                   className="addcar-input"
                 />
               </div>
-
-              <div className="addcar-field">
-                <label className="addcar-label">Willekeurige naam</label>
-                <input
-                  type="text"
-                  value={formData.carNickname}
-                  onChange={(e) =>
-                    setFormData({ ...formData, carNickname: e.target.value })
-                  }
-                  placeholder="Mijn auto naam"
-                  className="addcar-input"
-                />
-              </div>
             </div>
           </div>
 
@@ -186,12 +221,22 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
             <div className="addcar-license-section">
               <h3 className="addcar-section-title">Kenteken</h3>
               <div className="addcar-license-plate">
-                <span className="addcar-license-country">
-                  {formData.countryCode}
-                </span>
-                <span className="addcar-license-number">
-                  {formData.licensePlate}
-                </span>
+                <input className="addcar-license-country"
+                  value={formData.countryCode}
+                  onChange={(e) =>
+                    setFormData({ ...formData, countryCode: e.target.value.toUpperCase() })
+                  }
+                />
+                <input className="addcar-license-number"
+                  value={formData.licensePlate}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      licensePlate: e.target.value.toUpperCase()
+                    })
+                  }
+                  onBlur={lookupLicensePlate}
+                />
               </div>
             </div>
 
@@ -226,7 +271,7 @@ const AddCar = ({ isOpen, onClose, onSubmit }) => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

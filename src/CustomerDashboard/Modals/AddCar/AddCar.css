@@ -127,14 +127,19 @@
 
 .addcar-license-country {
     background-color: #2563eb;
+    text-align: center;
     color: white;
-    padding: 1rem 1.25rem;
     font-weight: bold;
     font-size: 1rem;
     display: flex;
     align-items: center;
+    max-width: 70px;
     min-width: 50px;
     justify-content: center;
+}
+
+.addcar-license-country:focus {
+    outline: none;
 }
 
 .addcar-license-number {
@@ -238,6 +243,7 @@
 .addcar-image-note {
     cursor: pointer;
 }
+
 .addcar-submit-btn {
     width: 100%;
     background-color: #0f766e;
@@ -267,16 +273,16 @@
         padding: 1.5rem;
         margin: 1rem;
     }
-    
+
     .addcar-content {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
-    
+
     .addcar-form-row {
         grid-template-columns: 1fr;
     }
-    
+
     .addcar-title {
         font-size: 1.5rem;
     }
@@ -286,11 +292,11 @@
     .addcar-container {
         padding: 1rem;
     }
-    
+
     .addcar-license-plate {
         width: 100%;
     }
-    
+
     .addcar-license-country,
     .addcar-license-number {
         flex: 1;
