@@ -1,16 +1,120 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
+import postCall from '../../Calls/calls';
+import { useToast } from '../../toastmessage/toastmessage';
 
 const MechanicDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+  const [todayAppointments, setTodayAppointments] = useState([]);
+  const [upcomingInspections, setUpcomingInspections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { openToast } = useToast();
+
   // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    
+
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch today's appointments
+  const fetchTodayAppointments = async () => {
+    try {
+      const loggedInData = JSON.parse(localStorage.getItem('loggedInData'));
+      if (!loggedInData || !loggedInData.userid) {
+        setError('Gebruiker niet ingelogd');
+        return;
+      }
+
+      const userid = loggedInData.userid;
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+
+      const response = await postCall('getMechanicAppointments', {
+        mechanicId: userid,
+        date: today
+      });
+
+      if (response.isSuccess && response.data) {
+        const transformedAppointments = response.data.map(appt => ({
+          id: appt.id || appt.appointmentid,
+          time: appt.time,
+          customer: appt.customerName || appt.customer || 'Onbekend',
+          service: appt.apk ? 'APK-Keuring' : `Reparatie (${appt.duration}h)`,
+          licensePlate: appt.licensePlate || appt.kenteken || 'Onbekend',
+          status: appt.status || 'upcoming'
+        }));
+        setTodayAppointments(transformedAppointments);
+      } else {
+        setTodayAppointments([]);
+      }
+    } catch (err) {
+      console.error('Error fetching today\'s appointments:', err);
+      setTodayAppointments([]);
+    }
+  };
+
+  // Fetch upcoming inspections
+  const fetchUpcomingInspections = async () => {
+    try {
+      const loggedInData = JSON.parse(localStorage.getItem('loggedInData'));
+      if (!loggedInData || !loggedInData.userid) {
+        return;
+      }
+
+      const userid = loggedInData.userid;
+      const response = await postCall('getUpcomingInspections', { mechanicId: userid });
+
+      if (response.isSuccess && response.data) {
+        const transformedInspections = response.data.map(inspection => ({
+          id: inspection.id,
+          customer: inspection.vehicleModel || inspection.customer || 'Onbekend voertuig',
+          plate: inspection.licensePlate || inspection.kenteken || 'Onbekend',
+          date: formatInspectionDate(inspection.date),
+          type: inspection.type || 'APK-Keuring'
+        }));
+        setUpcomingInspections(transformedInspections);
+      } else {
+        setUpcomingInspections([]);
+      }
+    } catch (err) {
+      console.error('Error fetching upcoming inspections:', err);
+      setUpcomingInspections([]);
+    }
+  };
+
+  // Format inspection date to relative format
+  const formatInspectionDate = (dateString) => {
+    const inspectionDate = new Date(dateString);
+    const today = new Date();
+    const diffTime = inspectionDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) return 'Vandaag';
+    if (diffDays === 1) return 'Morgen';
+    if (diffDays <= 7) return `${diffDays} dagen`;
+    if (diffDays <= 14) return '1 week';
+    return inspectionDate.toLocaleDateString('nl-NL');
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        await Promise.all([fetchTodayAppointments(), fetchUpcomingInspections()]);
+      } catch (err) {
+        setError('Fout bij het laden van dashboard gegevens');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
   }, []);
 
   // Sample data - would come from props or API
@@ -155,39 +259,53 @@ const MechanicDashboard = () => {
           {/* Today's Appointments */}
           <div className="mechanic-dashboard-content-section">
             <h2 className="mechanic-dashboard-section-title">Afspraken vandaag</h2>
-            <div className="mechanic-dashboard-appointments-list">
-              {dashboardData.todayAppointments.map((appointment, index) => (
-                <div key={index} className={`mechanic-dashboard-appointment-item ${appointment.status}`}>
-                  <div className="mechanic-dashboard-appointment-time">{appointment.time}</div>
-                  <div className="mechanic-dashboard-appointment-details">
-                    <div className="mechanic-dashboard-appointment-customer">{appointment.customer}</div>
-                    <div className="mechanic-dashboard-appointment-service">
-                      {appointment.service} - {appointment.licensePlate}
+            {loading ? (
+              <div className="mechanic-dashboard-loading">Afspraaken laden...</div>
+            ) : error ? (
+              <div className="mechanic-dashboard-error">{error}</div>
+            ) : todayAppointments.length === 0 ? (
+              <div className="mechanic-dashboard-no-appointments">Geen afspraken vandaag.</div>
+            ) : (
+              <div className="mechanic-dashboard-appointments-list">
+                {todayAppointments.map((appointment) => (
+                  <div key={appointment.id} className={`mechanic-dashboard-appointment-item ${appointment.status}`}>
+                    <div className="mechanic-dashboard-appointment-time">{appointment.time}</div>
+                    <div className="mechanic-dashboard-appointment-details">
+                      <div className="mechanic-dashboard-appointment-customer">{appointment.customer}</div>
+                      <div className="mechanic-dashboard-appointment-service">
+                        {appointment.service} - {appointment.licensePlate}
+                      </div>
+                    </div>
+                    <div className={`mechanic-dashboard-appointment-status ${appointment.status}`}>
+                      {appointment.status === 'completed' ? '✓' : '○'}
                     </div>
                   </div>
-                  <div className={`mechanic-dashboard-appointment-status ${appointment.status}`}>
-                    {appointment.status === 'completed' ? '✓' : '○'}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Upcoming APK Inspections */}
           <div className="mechanic-dashboard-content-section">
             <h2 className="mechanic-dashboard-section-title">Volgende APK Keuring</h2>
-            <div className="mechanic-dashboard-inspections-list">
-              {dashboardData.upcomingInspections.map((inspection, index) => (
-                <div key={index} className="mechanic-dashboard-inspection-item">
-                  <div className="mechanic-dashboard-inspection-vehicle">
-                    <div className="mechanic-dashboard-inspection-name">{inspection.customer}</div>
-                    <div className="mechanic-dashboard-inspection-plate">{inspection.plate}</div>
+            {loading ? (
+              <div className="mechanic-dashboard-loading">APK keuringen laden...</div>
+            ) : upcomingInspections.length === 0 ? (
+              <div className="mechanic-dashboard-no-inspections">Geen komende APK keuringen.</div>
+            ) : (
+              <div className="mechanic-dashboard-inspections-list">
+                {upcomingInspections.map((inspection) => (
+                  <div key={inspection.id} className="mechanic-dashboard-inspection-item">
+                    <div className="mechanic-dashboard-inspection-vehicle">
+                      <div className="mechanic-dashboard-inspection-name">{inspection.customer}</div>
+                      <div className="mechanic-dashboard-inspection-plate">{inspection.plate}</div>
+                    </div>
+                    <div className="mechanic-dashboard-inspection-date">{inspection.date}</div>
                   </div>
-                  <div className="mechanic-dashboard-inspection-date">{inspection.date}</div>
-                </div>
-              ))}
-            </div>
-            
+                ))}
+              </div>
+            )}
+
             {/* Quick Actions */}
             <div className="mechanic-dashboard-quick-actions">
               <button className="mechanic-dashboard-quick-action-btn">Nieuwe afspraak</button>
