@@ -104,6 +104,7 @@ const InvoicesCustomer = () => {
         action: 'verify-payment',
         session_id: sessionId,
         invoiceid: localStorage.getItem('pendingInvoiceId'),
+        userid: JSON.parse(localStorage.getItem('userdata')).userid
       });
 
 
