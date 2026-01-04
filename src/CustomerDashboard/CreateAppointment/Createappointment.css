@@ -79,6 +79,10 @@
     cursor: pointer;
 }
 
+.choose-mechanic-select {
+    width: 100%;
+}
+
 .repairs-select:focus {
     outline: none;
     border-color: #3b82f6;
