@@ -72,7 +72,7 @@
 
 .repairs-select {
     width: 30%;
-    padding: 0.5rem 0.75rem;
+    padding: 0.2rem 0.2rem;
     border: 1px solid #d1d5db;
     border-radius: 6px;
     background-color: white;
@@ -83,6 +83,14 @@
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.repairs-car-select {
+    margin-bottom: 1rem;
+    margin-left: 10px;
+    border-radius: 4px;
+    border-color: #9ca3af;
+    padding: 0.2rem 0.2rem;
 }
 
 .repairs-add-btn {
@@ -108,7 +116,8 @@
 }
 
 .repairs-table {
-    width: 100%;
+    width: 95%;
+    justify-self: center;
     border-collapse: collapse;
 }
 
@@ -176,6 +185,7 @@
 .repairs-labor-row {
     background-color: #f9fafb;
     font-weight: 500;
+    padding: 0.5rem 1rem;
 }
 
 .repairs-note {

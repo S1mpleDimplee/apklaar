@@ -1,28 +1,53 @@
 import React, { useEffect, useState } from 'react';
 import './Createappointment.css';
 import apiCall from '../../Calls/calls';
+import { useToast } from '../../toastmessage/toastmessage';
 
-const CreateAppointment = ({ onClose, carData, onSubmit }) => {
-  const [repairs, setRepairs] = useState([{}]);
+const CreateAppointment = ({ onClose, carData }) => {
+  const [repairs, setRepairs] = useState([]);
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('');
+  const [availableMechanics, setAvailableMechanics] = useState([]);
   const [mechanic, setMechanic] = useState('');
+
   const [selectedReparationID, setSelectedReparationID] = useState(null);
   const [reperationsTypes, setReperationsTypes] = useState([]);
   const [labercostPerHour, setLabercostPerHour] = useState(0);
+  const [labortaxRate, setLabortaxRate] = useState(21);
+
+  const [cars, setCars] = useState([]);
+  const [selectedCar, setSelectedCar] = useState([]);
+
   const [totalNet, setTotalNet] = useState(0);
   const [totalGross, setTotalGross] = useState(0);
   const [totalLaborTime, setTotalLaborTime] = useState(0);
 
+  const { openToast } = useToast();
 
   useEffect(() => {
     fetchReparations();
     fetchCars();
+    fetchMechanics();
   }, []);
+
+  useEffect(() => {
+    calculateTotals();
+  }, [repairs, labercostPerHour]);
+
+  const fetchMechanics = async () => {
+    const response = await apiCall('fetchmechanics', {});
+    if (response.isSuccess) {
+      setAvailableMechanics(response.data);
+    };
+  };
 
   const fetchCars = async () => {
     const userid = JSON.parse(localStorage.getItem('userdata')).userid;
-    const response = await apiCall('fetchcars', { userid });
+    const response = await apiCall('getcars', { userid });
+
+    if (response.isSuccess) {
+      setCars(response.data);
+    }
   }
 
   const fetchReparations = async () => {
@@ -30,7 +55,10 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
 
     if (response.isSuccess) {
       setReperationsTypes(response.data);
-      setLabercostPerHour(response.data.find(type => type.reparation === 'Arbeitskosten (per uur)')?.netprice || 0);
+      const laborCost = response.data.find(type => type.reparation === 'Arbeitskosten (per uur)')?.netprice || 0;
+      setLabercostPerHour(parseFloat(laborCost));
+      const laborTax = response.data.find(type => type.reparation === 'Arbeitskosten (per uur)')?.tax || 21;
+      setLabortaxRate(parseFloat(laborTax));
     }
   }
 
@@ -39,42 +67,48 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
     const selectedType = reperationsTypes.find(type => type.id === selectedReparationID);
 
     if (selectedType) {
-      setRepairs([...repairs, {
-        id: Date.now(),
+      const newRepair = {
+        id: selectedType.id,
         repairationType: selectedType.reparation,
-        netPrice: selectedType.netprice,
-        tax: selectedType.tax,
-        grossPrice: calculateGrossPrice(selectedType.netprice, selectedType.tax),
-        laborTime: selectedType.laborTime || 0
-      }]);
-      calculateTotals();
+        netPrice: parseFloat(selectedType.netprice) || 0,
+        tax: parseFloat(selectedType.tax) || 0,
+        grossPrice: parseFloat(calculateGrossPrice(selectedType.netprice, selectedType.tax)) || 0,
+        laborTime: parseFloat(selectedType.labor_time) || 0  // FIX: Changed from laborTime to labor_time
+      };
+
+      setRepairs([...repairs, newRepair]);
     }
   };
 
+
   const removeRepair = (index) => {
     setRepairs(repairs.filter((_, i) => i !== index));
-    calculateTotals();
   };
 
   const calculateTotals = () => {
     let netTotal = 0;
     let grossTotal = 0;
     let laborTimeTotal = 0;
+
     repairs.forEach(repair => {
       netTotal += parseFloat(repair.netPrice) || 0;
       grossTotal += parseFloat(repair.grossPrice) || 0;
       laborTimeTotal += parseFloat(repair.laborTime) || 0;
     });
 
+    const laborCostNet = laborTimeTotal * labercostPerHour;
+    const laborCostGross = laborCostNet * 1.21;
 
+    netTotal += laborCostNet;
+    grossTotal += laborCostGross;
 
-    setTotalGross(grossTotal);
     setTotalNet(netTotal);
+    setTotalGross(grossTotal);
     setTotalLaborTime(laborTimeTotal);
   }
 
   const calculateGrossPrice = (netPrice, tax) => {
-    if (!netPrice || isNaN(netPrice)) return '';
+    if (!netPrice || isNaN(netPrice)) return '0.00';
     const gross = parseFloat(netPrice) * (1 + parseFloat(tax) / 100);
     return gross.toFixed(2);
   };
@@ -82,10 +116,10 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
   const handleSubmit = () => {
     const data = {
       carId: carData?.carid,
-      // inspectionType,
       appointmentDate,
       appointmentTime,
-      mechanic,
+      userid: JSON.parse(localStorage.getItem('userdata')).userid,
+      mechanicid: mechanic,
       repairs: repairs.filter(r => r.repairationType),
       totals: {
         netPrice: totalNet,
@@ -93,9 +127,15 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
         totalLaborTime
       }
     };
-    onSubmit(data);
-  };
 
+    const response = apiCall('createAppointment', data);
+    if (response.isSuccess) {
+      openToast('Afspraak succesvol aangemaakt!');
+      onClose();
+    } else {
+      openToast(response.message || 'Er is een fout opgetreden bij het aanmaken van de afspraak.');
+    }
+  };
 
   return (
     <div className="repairs-modal-overlay">
@@ -115,7 +155,6 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                 className="repairs-select"
               >
                 <option value="">Selecteer een behandeling</option>
-                {/* Tijdelijk een filter voor geen Arbeitskoisten veranderd later in de database of backend*/}
                 {reperationsTypes.filter((type) => type.reparation !== 'Arbeitskosten (per uur)').map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.reparation}
@@ -126,8 +165,6 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                 Toevoegen+
               </button>
             </div>
-
-
 
             <div className="repairs-table-container">
               <table className="repairs-table">
@@ -148,12 +185,12 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                           <span className="repairs-repairation-type-label">{repair.repairationType}</span>
                         </td>
                         <td>
-                          <span>€ {repair.netPrice || '0,00'}</span>
+                          <span>€ {repair.netPrice.toFixed(2)}</span>
                         </td>
                         <td>
                           <span>{repair.tax}%</span>
                         </td>
-                        <td className="repairs-price">€{repair.grossPrice || '0,00'}</td>
+                        <td className="repairs-price">€{repair.grossPrice.toFixed(2)}</td>
                         <td>
                           <button
                             onClick={() => removeRepair(index)}
@@ -170,22 +207,24 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                     </tr>
                   )}
 
-                  <tr className="repairs-labor-row">
-                    <td>Werktijd werknemer ({totalLaborTime} UUR)</td>
-                    <td>
-                      <span>{totalLaborTime ? `€${(parseFloat(totalLaborTime) * 50).toFixed(2)}` : '€0,00'}</span>
-                    </td>
-                    <td>21%</td>
-                    <td className="repairs-price">
-                      €{(parseFloat(repairs[0]?.laborTime || 0) * 50 * 1.21).toFixed(2)}
-                    </td>
-                    <td></td>
-                  </tr>
+                  {totalLaborTime > 0 && (
+                    <tr className="repairs-labor-row">
+                      <td>Werktijd werknemer ({totalLaborTime.toFixed(0)} UUR)</td>
+                      <td>
+                        <span>€{(totalLaborTime * labercostPerHour).toFixed(2)}</span>
+                      </td>
+                      <td>{labortaxRate}%</td>
+                      <td className="repairs-price">
+                        €{(totalLaborTime * labercostPerHour * (1 + labortaxRate / 100)).toFixed(2)}
+                      </td>
+                      <td></td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
 
-            <div className="repairs-note">Excl btw.</div>
+            <div className="repairs-note">OPGELET: Werktijd werknemer is een schatting, in het eindfactuur kan dit verschillen met wat hier staat!</div>
 
             <div className="repairs-total">
               Geschatte bedrag: €{totalGross.toFixed(2)}
@@ -194,33 +233,45 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
 
           <div className="repairs-sidebar">
             <div className="repairs-car-info">
-              <h3 className="repairs-car-title">
-                Auto <span>{carData?.brand} {carData?.model} {carData?.buildyear}</span>
-              </h3>
+              <h3 className="repairs-car-title">Auto</h3>
+              <select className="repairs-car-select"
+                value={carData?.carid || ''}
+                onChange={(e) => {
+                  const selected = cars.find(car => car.carid === e.target.value);
+                  setSelectedCar(selected);
+                }}
+              >
+                <option value="">Selecteer een auto</option>
+                {cars.map((car) => (
+                  <option key={car.carid} value={car.carid}>
+                    {car.carnickname}
+                  </option>
+                ))}
+              </select>
               <div className="repairs-car-details">
                 <div className="repairs-detail-row">
                   <span>Merk</span>
-                  <strong>{carData?.brand || ''}</strong>
+                  <strong>{selectedCar?.brand || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Model</span>
-                  <strong>{carData?.model || ''}</strong>
+                  <strong>{selectedCar?.model || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Bouw jaar</span>
-                  <strong>{carData?.buildyear || ''}</strong>
+                  <strong>{selectedCar?.buildyear || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Kenteken</span>
-                  <strong>{carData?.licensePlate || ''}</strong>
+                  <strong>{selectedCar?.licenseplatecountry}{selectedCar?.licenseplate || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Laatste keuring</span>
-                  <strong>{carData?.lastInspection || ''}</strong>
+                  <strong>{selectedCar?.lastinspection || ''}</strong>
                 </div>
                 <div className="repairs-detail-row">
                   <span>Geregistreerd sinds</span>
-                  <strong>{carData?.registeredSince || ''}</strong>
+                  <strong>{selectedCar?.registered_at?.split(' ')[0] || ''}</strong>
                 </div>
               </div>
             </div>
@@ -273,9 +324,12 @@ const CreateAppointment = ({ onClose, carData, onSubmit }) => {
                     className="repairs-select"
                   >
                     <option value="">-</option>
-                    <option value="jan">Jan de Vries</option>
-                    <option value="piet">Piet Jansen</option>
-                    <option value="klaas">Klaas Bakker</option>
+
+                    {availableMechanics.map((mech) => (
+                      <option key={mech.userid} value={mech.userid}>
+                        {mech.firstname} {mech.lastname}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
