@@ -276,13 +276,6 @@ const ManagerInvoices = () => {
                     >
                       👁️
                     </button>
-                    <button 
-                      className="manager-invoices-action-btn toggle"
-                      title={invoice.status === 'Betaald' ? 'Markeer als onbetaald' : 'Markeer als betaald'}
-                      onClick={() => toggleInvoiceStatus(invoice.id)}
-                    >
-                      {invoice.status === 'Betaald' ? '❌' : '✅'}
-                    </button>
                   </td>
                 </tr>
               ))}
