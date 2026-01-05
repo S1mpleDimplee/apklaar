@@ -3,15 +3,37 @@ import './Dashboard.css';
 
 const ManagerDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  
+  const [stats, setStats] = useState(null);
+
   // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 60000);
-    
+
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    fetch('http://localhost/apklaarAPI/router/router.php', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        function: 'fetchmanagerdashboard',
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setStats(data.data);
+        }
+      })
+      .catch(err => console.error(err));
+  }, []);
+
 
   // Sample dashboard data for manager
   const dashboardData = {
@@ -63,14 +85,14 @@ const ManagerDashboard = () => {
   };
 
   const formatTime = (date) => {
-    return date.toLocaleTimeString('nl-NL', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleTimeString('nl-NL', {
+      hour: '2-digit',
+      minute: '2-digit'
     });
   };
 
   const getUrgencyColor = (urgency) => {
-    switch(urgency) {
+    switch (urgency) {
       case 'high': return '#f44336';
       case 'medium': return '#ff9800';
       case 'low': return '#4caf50';
@@ -87,7 +109,7 @@ const ManagerDashboard = () => {
           <span className="manager-dashboard-separator">/</span>
           <span>Dashboard</span>
         </div>
-        
+
         <div className="manager-dashboard-user-info">
           <div className="manager-dashboard-user-avatar"></div>
           <span className="manager-dashboard-user-name">Edward robinson</span>
@@ -99,33 +121,37 @@ const ManagerDashboard = () => {
         {/* Stats Cards */}
         <div className="manager-dashboard-stats-grid">
           <div className="manager-dashboard-stat-card appointments">
-            <div className="manager-dashboard-stat-number">{dashboardData.appointmentsToday.total}</div>
-            <div className="manager-dashboard-stat-label">Afspraken vandaag</div>
-            <div className="manager-dashboard-stat-progress">
-              <div className="manager-dashboard-progress-bar">
-                <div 
-                  className="manager-dashboard-progress-fill"
-                  style={{ width: `${(dashboardData.appointmentsToday.completed / dashboardData.appointmentsToday.total) * 100}%` }}
-                ></div>
-              </div>
-              <span className="manager-dashboard-progress-text">
-                {dashboardData.appointmentsToday.completed} van {dashboardData.appointmentsToday.total} afgehandeld
-              </span>
+            <div className="manager-dashboard-stat-number">
+              {stats ? stats.appointmentsToday.scheduled : '-'}
+            </div>
+
+            <div className="manager-dashboard-stat-label">
+              Afspraken vandaag
+            </div>
+
+            <div className="manager-dashboard-stat-subtitle">
+              {stats ? `${stats.appointmentsToday.total} total` : 'Loading...'}
             </div>
           </div>
-          
+
+
           <div className="manager-dashboard-stat-card mechanics">
-            <div className="manager-dashboard-stat-number">{dashboardData.mechanicsPresent.total}</div>
+            <div className="manager-dashboard-stat-number">
+              {stats ? stats.mechanics : '-'}
+            </div>
             <div className="manager-dashboard-stat-label">Monteurs aanwezig</div>
             <div className="manager-dashboard-stat-subtitle">in de garage</div>
           </div>
-          
+
           <div className="manager-dashboard-stat-card customers">
-            <div className="manager-dashboard-stat-number">{dashboardData.websiteCustomers.total}</div>
+            <div className="manager-dashboard-stat-number">
+              {stats ? stats.customers : '-'}
+            </div>
             <div className="manager-dashboard-stat-label">Huidige klanten</div>
             <div className="manager-dashboard-stat-subtitle">aangemeld op de website</div>
           </div>
-          
+
+
           <div className="manager-dashboard-stat-card success-rate">
             <div className="manager-dashboard-stat-number">{dashboardData.apkSuccessRate.percentage}%</div>
             <div className="manager-dashboard-stat-label">APK</div>
@@ -142,13 +168,13 @@ const ManagerDashboard = () => {
               <span className="manager-dashboard-revenue-target">Doel: {dashboardData.revenueToday.target}</span>
             </div>
             <div className="manager-dashboard-revenue-progress">
-              <div 
+              <div
                 className="manager-dashboard-revenue-progress-fill"
                 style={{ width: `${dashboardData.revenueToday.percentage}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="manager-dashboard-time-card">
             <span className="manager-dashboard-time-label">Huidige tijd</span>
             <span className="manager-dashboard-time-value">{formatTime(currentTime)}</span>
@@ -181,7 +207,7 @@ const ManagerDashboard = () => {
           {/* Bridge Status & Issues */}
           <div className="manager-dashboard-content-section">
             <h2 className="manager-dashboard-section-title">Brug Status & Aandachtspunten</h2>
-            
+
             {/* Bridge Status */}
             <div className="manager-dashboard-bridges-section">
               <h3 className="manager-dashboard-subsection-title">Bruggen overzicht</h3>
@@ -207,7 +233,7 @@ const ManagerDashboard = () => {
               <div className="manager-dashboard-issues-list">
                 {dashboardData.upcomingIssues.map((issue, index) => (
                   <div key={index} className="manager-dashboard-issue-item">
-                    <div 
+                    <div
                       className="manager-dashboard-issue-indicator"
                       style={{ backgroundColor: getUrgencyColor(issue.urgency) }}
                     ></div>
