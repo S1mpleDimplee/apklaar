@@ -33,9 +33,9 @@ const DashboardKlant = () => {
     }
   };
 
-  const cancelAppointment = async (appointmentId) => {
+  const cancelAppointment = async (appointmentId, appointmenttime) => {
 
-    const response = await apiCall('cancelAppointment', { appointmentId });
+    const response = await apiCall('cancelAppointment', { appointmentId, appointmenttime });
     if (response.isSuccess) {
       openToast(response.message);
       fetchDashboardInfo();
@@ -70,8 +70,8 @@ const DashboardKlant = () => {
       <div className="main-content">
         <div className="stats-grid">
           <div className="stat-card blue">
-            <h3>Auto status</h3>
-            <p>Auto status</p>
+            <h3>Welkom op het dashboard!</h3>
+            <p>Hier kunt u uw auto status, afspraken en facturen bekijken. Bij vragen conctacteer ons via apklaar@gmail.com</p>
           </div>
 
           <div className="stat-card green">
@@ -107,7 +107,7 @@ const DashboardKlant = () => {
                 </div>
               ))}
             </div>
-            <p className="end-of-list">Meeste 4 recente meldingen, <a onClick={() => navigate("berichten")} className='dashboard-link'>Bekijk alle meldingen</a></p>
+            <p className="end-of-list">Meeste recente meldingen, <a onClick={() => navigate("berichten")} className='dashboard-link'>Bekijk alle meldingen</a></p>
           </div>
 
           <div className="content-section">
@@ -141,10 +141,10 @@ const DashboardKlant = () => {
 
                         <button className='appointment-cancel' onClick={() => {
                           if (!removeAppointmentVerify) {
-                            setRemoveAppointmentVerify(appointment.aid);
+                            setRemoveAppointmentVerify(appointment.aid, appointment.appointmenttime);
                             openToast("Klik nogmaals op annuleren om de afspraak te annuleren.");
                           } else if (removeAppointmentVerify === appointment.aid) {
-                            cancelAppointment(appointment.aid);
+                            cancelAppointment(appointment.aid, appointment.appointmenttime);
                             setRemoveAppointmentVerify(false);
                           }
                         }
@@ -158,7 +158,7 @@ const DashboardKlant = () => {
             ) : (
               <div className="empty-content">
                 <div>
-                  <p>U heeft nog geen aankomende afspraken.</p>
+                  <p>U heeft momenteel geen aankomende afspraken. Maak gemakkelijk en snel een afspraak.</p>
                   <button className="plan-apk-button" onClick={() => setShowAppointmentModal(true)}>Plan nu een afspraak</button>
                 </div>
               </div>
@@ -168,7 +168,10 @@ const DashboardKlant = () => {
       </div>
       {showAppointmentModal && (
         <CreateAppointment
-          onClose={() => setShowAppointmentModal(false)}
+          onClose={() => {
+            fetchDashboardInfo();
+            setShowAppointmentModal(false);
+          }}
         />
       )}
     </div>
