@@ -5,14 +5,12 @@ const ManagerDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [stats, setStats] = useState(null);
   const [appointments, setAppointments] = useState([]);
-
+  const [cars, setCars] = useState([]);
+  const [mechanics, setMechanics] = useState([]);
 
   // Update time every minute
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
+    const timer = setInterval(() => { setCurrentTime(new Date()); }, 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -54,6 +52,39 @@ const ManagerDashboard = () => {
       .catch(err => console.error(err));
   }, []);
 
+  useEffect(() => {
+  fetch('http://localhost/apklaarAPI/router/router.php', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ function: 'getAllUsers' }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        // role === 2 means mechanic
+        const mechanics = data.data.filter(user => user.role === '2' || user.role === 2);
+        setMechanics(mechanics);
+      }
+    })
+    .catch(err => console.error(err));
+}, []);
+
+useEffect(() => {
+  fetch('http://localhost/apklaarAPI/router/router.php', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ function: 'getAllCars' }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) setCars(data.data);
+    })
+    .catch(err => console.error(err));
+}, []);
+
+
 
   // Sample dashboard data for manager
   const dashboardData = {
@@ -66,19 +97,6 @@ const ManagerDashboard = () => {
       target: '€3,200',
       percentage: 89
     },
-    bridgeStatus: [
-      { id: 1, status: 'occupied', mechanic: 'Jan Bakker', task: 'APK Toyota', timeLeft: '15 min' },
-      { id: 2, status: 'occupied', mechanic: 'Piet Smit', task: 'Reparatie BMW', timeLeft: '45 min' },
-      { id: 3, status: 'maintenance', mechanic: '-', task: 'Onderhoud gepland', timeLeft: '2u' },
-      { id: 4, status: 'occupied', mechanic: 'Lisa Vermeer', task: 'Onderhoud VW', timeLeft: '30 min' },
-      { id: 5, status: 'occupied', mechanic: 'Mark de Vries', task: 'APK Audi', timeLeft: '20 min' },
-      { id: 6, status: 'available', mechanic: 'Sandra Bos', task: 'Beschikbaar', timeLeft: '-' }
-    ]
-  };
-
-  const formatDateTime = (date, time) => {
-    const dt = new Date(`${date}T${time}`);
-    return dt.toLocaleString('nl-NL', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
   };
 
   const formatTime = (date) => {
@@ -88,14 +106,18 @@ const ManagerDashboard = () => {
     });
   };
 
-  const getUrgencyColor = (urgency) => {
-    switch (urgency) {
-      case 'high': return '#f44336';
-      case 'medium': return '#ff9800';
-      case 'low': return '#4caf50';
-      default: return '#666';
-    }
-  };
+  const bridges = appointments.map(appt => ({
+  id: appt.aid,
+  status: 'occupied',
+  task: JSON.parse(appt.note).map(r => r.repairationType).join(', '),
+  car: appt.brand && appt.model ? `${appt.brand} ${appt.model}` : '-',
+  mechanic: `${appt.mechanic_firstname} ${appt.mechanic_lastname}`,
+  timeLeft: `${appt.duration}u`
+}));
+
+
+
+
 
   return (
     <div className="manager-dashboard-container">
@@ -198,8 +220,6 @@ const ManagerDashboard = () => {
         {/* Content Grid */}
         <div className="manager-dashboard-content-grid">
           {/* Today's Staff Overview */}
-          {/* Today's Appointments */}
-          {/* Today's Appointments */}
           <div className="manager-dashboard-content-section">
             <h2 className="manager-dashboard-section-title">Afspraken vandaag</h2>
             <div className="manager-dashboard-staff-list">
@@ -248,23 +268,28 @@ const ManagerDashboard = () => {
             <h2 className="manager-dashboard-section-title">Brug Status</h2>
 
             {/* Bridge Status */}
-            <div className="manager-dashboard-bridges-section">
-              <h3 className="manager-dashboard-subsection-title">Bruggen overzicht</h3>
-              <div className="manager-dashboard-bridges-grid">
-                {dashboardData.bridgeStatus.map((bridge) => (
-                  <div key={bridge.id} className={`manager-dashboard-bridge-item ${bridge.status}`}>
-                    <div className="manager-dashboard-bridge-number">Brug {bridge.id}</div>
-                    <div className="manager-dashboard-bridge-info">
-                      <div className="manager-dashboard-bridge-task">{bridge.task}</div>
-                      {bridge.mechanic !== '-' && (
-                        <div className="manager-dashboard-bridge-mechanic">{bridge.mechanic}</div>
-                      )}
-                      <div className="manager-dashboard-bridge-time">{bridge.timeLeft}</div>
-                    </div>
-                  </div>
-                ))}
+            
+              <div className="manager-dashboard-bridges-section">
+                <h3 className="manager-dashboard-subsection-title">Bruggen overzicht</h3>
+                <div className="manager-dashboard-bridges-grid">
+                  {bridges.length ? (
+                    bridges.map(b => (
+                      <div key={b.id} className={`manager-dashboard-bridge-item ${b.status}`}>
+                        <div className="manager-dashboard-bridge-number">Brug {b.id}</div>
+                        <div className="manager-dashboard-bridge-info">
+                          <div className="manager-dashboard-bridge-task">{b.task}</div>
+                          <div className="manager-dashboard-bridge-car">{b.car}</div>
+                          <div className="manager-dashboard-bridge-mechanic">{b.mechanic}</div>
+                          <div className="manager-dashboard-bridge-time">{b.timeLeft}</div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>Geen bruggen in gebruik.</p>
+                  )}
+                </div>
               </div>
-            </div>
+            
           </div>
         </div>
       </div>
