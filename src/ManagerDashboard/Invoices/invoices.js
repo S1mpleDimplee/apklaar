@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import downloadApiCall from '../../Calls/downloadCall';
+import { useToast } from '../../toastmessage/toastmessage';
 import './Invoices.css';
 
 const ManagerInvoices = () => {
+  const { openToast } = useToast();
   const [filters, setFilters] = useState({
     nameFilter: '',
     status: 'alle',
@@ -63,6 +66,27 @@ const ManagerInvoices = () => {
       return invoice;
     }));
   };
+
+  const downloadInvoice = async (invoiceId) => {
+  try {
+    const response = await downloadApiCall(
+      'generateinvoice',
+      {
+        invoiceid: invoiceId,
+        action: 'download'
+      },
+      `factuur_${invoiceId}.pdf`
+    );
+
+    if (!response.isSuccess) {
+      openToast('Er is een fout opgetreden bij het downloaden van de factuur');
+    }
+  } catch (error) {
+    console.error('Error downloading invoice:', error);
+    openToast('Er is een fout opgetreden bij het downloaden van de factuur');
+  }
+};
+
 
   // Filter invoices based on current filters
   const filteredInvoices = invoices.filter(invoice => {
@@ -248,21 +272,9 @@ const ManagerInvoices = () => {
                     <button 
                       className="manager-invoices-action-btn view"
                       title="Factuur bekijken"
+                      onClick={() => downloadInvoice(invoice.id)}
                     >
                       👁️
-                    </button>
-                    <button 
-                      className="manager-invoices-action-btn edit"
-                      title="Bewerken"
-                    >
-                      ✏️
-                    </button>
-                    <button 
-                      className="manager-invoices-action-btn toggle"
-                      title={invoice.status === 'Betaald' ? 'Markeer als onbetaald' : 'Markeer als betaald'}
-                      onClick={() => toggleInvoiceStatus(invoice.id)}
-                    >
-                      {invoice.status === 'Betaald' ? '❌' : '✅'}
                     </button>
                   </td>
                 </tr>

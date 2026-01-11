@@ -29,7 +29,7 @@ const NavbarHome = () => {
                 Home
               </a>
             </li>
-            <li className="nav-item">
+            {/* <li className="nav-item">
               <a href="#" className="nav-link">
                 Reparaties
               </a>
@@ -38,7 +38,7 @@ const NavbarHome = () => {
               <a href="#" className="nav-link">
                 Tarieven
               </a>
-            </li>
+            </li> */}
             <button
               className="nav-button"
               onClick={() => navigate("/inloggen")}
