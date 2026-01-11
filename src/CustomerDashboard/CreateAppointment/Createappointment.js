@@ -116,6 +116,7 @@ const CreateAppointment = ({ onClose, carData }) => {
   const handleSubmit = async () => {
     const data = {
       carId: carData?.carid,
+      carname: carData?.carnickname,
       appointmentDate,
       appointmentTime,
       userid: JSON.parse(localStorage.getItem('userdata')).userid,
