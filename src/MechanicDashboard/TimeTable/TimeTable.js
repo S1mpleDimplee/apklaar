@@ -11,7 +11,6 @@ import { nl } from 'date-fns/locale';
 import postCall from '../../Calls/calls';
 
 const MechanicTimeTable = () => {
-  // ================= TEST DATE FOR 5 JAN 2026 =================
   const testDate = new Date('2026-01-05');
   const [currentWeek, setCurrentWeek] = useState(getISOWeek(testDate));
   const [currentYear, setCurrentYear] = useState(testDate.getFullYear());
@@ -19,14 +18,12 @@ const MechanicTimeTable = () => {
   const [appointments, setAppointments] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // ================= ISO MONDAY =================
   const monday = startOfISOWeek(
     new Date(currentYear, 0, 1 + (currentWeek - 1) * 7)
   );
 
   const weekDates = Array.from({ length: 5 }, (_, i) => addDays(monday, i));
 
-  // ================= TIME SLOTS =================
   const timeSlots = [
     '08:00 - 08:30',
     '08:30 - 09:00',
@@ -53,12 +50,10 @@ const MechanicTimeTable = () => {
     return d.toTimeString().slice(0, 5);
   };
 
-  // ================= FETCH APPOINTMENTS =================
   const fetchAppointmentsForWeek = async () => {
     setLoading(true);
     try {
       const loggedInData = JSON.parse(localStorage.getItem('userdata'));
-
       const response = await postCall('getAppointmentsForWeek', {
         week: currentWeek,
         year: currentYear,
@@ -69,11 +64,10 @@ const MechanicTimeTable = () => {
 
       const mapped = {};
 
-      // ====== MAP REAL APPOINTMENTS ======
       if (Array.isArray(response.data)) {
         response.data.forEach(appt => {
-          const dateKey = appt.appointmentdate; // YYYY-MM-DD
-          const start = normalizeTime(appt.appointmenttime); // HH:mm
+          const dateKey = appt.appointmentdate;
+          const start = normalizeTime(appt.appointmenttime);
           const end = addThirtyMinutes(start);
           const slot = `${start} - ${end}`;
 
@@ -83,7 +77,7 @@ const MechanicTimeTable = () => {
             aid: appt.aid,
             time: slot,
             status: appt.status,
-            repairs: appt.repairs // can be an array or string depending on API
+            repairs: appt.repairs
           });
         });
       }
@@ -103,7 +97,6 @@ const MechanicTimeTable = () => {
     fetchAppointmentsForWeek();
   }, [currentWeek, currentYear]);
 
-  // ================= WEEK NAVIGATION =================
   const navigateWeek = (dir) => {
     let newWeek = dir === 'next' ? currentWeek + 1 : currentWeek - 1;
     let newYear = currentYear;
@@ -127,7 +120,6 @@ const MechanicTimeTable = () => {
     return dayApps.find(a => a.time === slot);
   };
 
-  // ================= RENDER =================
   return (
     <div className="planner-container">
       <div className="planner-main-content">
@@ -173,9 +165,26 @@ const MechanicTimeTable = () => {
                         {appt ? (
                           <div className="appointment-card">
                             <div className="appointment-time">{slot}</div>
+
+                            {/* Show only repairationType */}
+                            {appt.repairs && (
+                              <div>
+                                Repairs:{' '}
+                                {Array.isArray(appt.repairs)
+                                  ? appt.repairs.map(r => r.repairationType).join(', ')
+                                  : (() => {
+                                      try {
+                                        const parsed = JSON.parse(appt.repairs);
+                                        return parsed.map(r => r.repairationType).join(', ');
+                                      } catch {
+                                        return '';
+                                      }
+                                    })()}
+                              </div>
+                            )}
+
                             <div>Status: {appt.status}</div>
                             <div>AID: {appt.aid}</div>
-                            <div>Repairs: {appt.repairs}</div>
                           </div>
                         ) : (
                           <div className="appointment-time">{slot}</div>

@@ -58,27 +58,6 @@ const Sidebar = ({ userRole, onNavigate, currentPath }) => {
         path: "/dashboard/rooster",
         description: "Uw werkrooster",
       },
-      {
-        id: "klanten",
-        label: "Klanten",
-        image: "👥",
-        path: "/dashboard/klanten",
-        description: "Klantinformatie",
-      },
-      {
-        id: "rapporten",
-        label: "Rapporten",
-        image: "📋",
-        path: "/dashboard/rapporten",
-        description: "Werk rapporten",
-      },
-      {
-        id: "berichten",
-        label: "Berichten",
-        image: notification,
-        path: "/dashboard/berichten",
-        description: "Mededelingen",
-      },
     ],
     // Manager (role 2)
     3: [
