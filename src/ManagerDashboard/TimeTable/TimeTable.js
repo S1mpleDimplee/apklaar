@@ -12,53 +12,112 @@ const ManagerTimeTable = () => {
 
   const [weekData, setWeekData] = useState([]);
   const mechanics = ['alle', 'Jan Bakker', 'Piet Smit', 'Maria Jansen', 'Tom van Berg'];
-const serviceTypes = ['alle', 'APK-Keuring', 'Reparatie', 'Onderhoud', 'Motor olie'];
-const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'];
+  const serviceTypes = ['alle', 'APK-Keuring', 'Reparatie', 'Onderhoud', 'Motor olie'];
+  const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'];
 
+  // --- Helper: get next week number ---
+  const getNextWeekNumber = () => {
+    const today = new Date();
+    const nextWeekDate = new Date(today);
+    nextWeekDate.setDate(today.getDate() + 7);
+    const weekNumber = getWeekNumber(nextWeekDate);
+    const year = nextWeekDate.getFullYear();
+    return { week: weekNumber, year };
+  };
+
+  // --- Helper: get week number from date ---
+  const getWeekNumber = (d) => {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+  };
+
+  // --- Helper: get weekday dates for week ---
+  const getWeekDates = (weekNumber, year) => {
+    const simple = new Date(year, 0, 1 + (weekNumber - 1) * 7);
+    const dow = simple.getDay();
+    const monday = new Date(simple);
+    if (dow <= 4) monday.setDate(simple.getDate() - simple.getDay() + 1);
+    else monday.setDate(simple.getDate() + 8 - simple.getDay());
+    return Array.from({ length: 5 }).map((_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return d;
+    });
+  };
 
   useEffect(() => {
-    fetch('http://localhost/apklaarAPI/router/router.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        function: 'getallappointments'
-      })
-    })
-      .then(res => res.json())
-      .then(json => {
-        if (json.success) {
-          setWeekData(mapAppointmentsToWeek(json.data));
+    const fetchAppointments = async () => {
+      try {
+        const bodyData = { function: 'getallappointments' };
+
+        if (filters.dateRange === 'volgende-week') {
+          const nextWeek = getNextWeekNumber();
+          bodyData.function = 'getappointmentsforweek';
+          bodyData.data = { week: nextWeek.week, year: nextWeek.year };
         }
-      })
-      .catch(err => console.error(err));
-  }, []);
 
+        const res = await fetch('http://localhost/apklaarAPI/router/router.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(bodyData)
+        });
 
-  const mapAppointmentsToWeek = (appointments) => {
+        const json = await res.json();
+        if (json.success) {
+          // Map appointments to weekdays with dates
+          const weekNum = filters.dateRange === 'volgende-week' ? getNextWeekNumber().week : getWeekNumber(new Date());
+          const yearNum = filters.dateRange === 'volgende-week' ? getNextWeekNumber().year : new Date().getFullYear();
+          setWeekData(mapAppointmentsToWeek(json.data, weekNum, yearNum));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAppointments();
+  }, [filters.dateRange]);
+
+  // --- Map appointments to weekdays ---
+  const mapAppointmentsToWeek = (appointments, weekNum, yearNum) => {
     const days = ['Maandag', 'Dinsdag', 'Woensdag', 'Donderdag', 'Vrijdag'];
+    const weekDates = getWeekDates(weekNum, yearNum);
 
-    const week = days.map(day => ({
+    const week = days.map((day, idx) => ({
       day,
-      date: '',
+      date: weekDates[idx].toLocaleDateString('nl-NL'),
       appointments: []
     }));
 
     appointments.forEach(a => {
-      const dateObj = new Date(a.date);
+      const dateObj = new Date(a.appointmentDate || a.date);
       const dayIndex = dateObj.getDay() - 1; // Monday = 0
-
-      if (dayIndex >= 0 && dayIndex < week.length) {
-        week[dayIndex].date = dateObj.toLocaleDateString('nl-NL');
-
+      if (dayIndex >= 0 && dayIndex < 5) {
         week[dayIndex].appointments.push({
           id: a.aid,
-          type: a.apk ? 'APK-Keuring' : 'Reparatie',
-          time: `${a.time} (${a.duration} min)`,
-          code: a.apk ?? '',
-          vehicle: `${a.firstname} ${a.lastname}`,
+          type: (() => {
+            try {
+              const repairs = JSON.parse(a.repairs || a.note);
+              return repairs.length > 0 ? repairs[0].repairationType : 'Reparatie';
+            } catch {
+              return 'Reparatie';
+            }
+          })(),
+          time: `${a.appointmentTime || a.time} (${a.totalLaborTime || a.duration} min)`,
+          code: (() => {
+            try {
+              const repairs = JSON.parse(a.repairs || a.note);
+              return repairs.length > 0 ? repairs[0].id : '';
+            } catch {
+              return '';
+            }
+          })(),
+          vehicle: `${a.customer_firstname || ''} ${a.customer_lastname || ''}`.trim(),
           status: a.status,
-          mechanic: a.mechanic ?? 'Onbekend'
+          mechanic: `${a.mechanic_firstname || ''} ${a.mechanic_lastname || ''}`.trim() || 'Onbekend'
         });
       }
     });
@@ -67,28 +126,24 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
   };
 
   const handleFilterChange = (filterType, value) => {
-  setFilters(prev => ({
-    ...prev,
-    [filterType]: value
-  }));
-};
+    setFilters(prev => ({ ...prev, [filterType]: value }));
+  };
 
-
-  // Filter appointments based on current filters
+  // --- Filter appointments ---
   const filteredWeekData = weekData.map(day => ({
     ...day,
     appointments: day.appointments.filter(appointment => {
-      const nameMatch = filters.nameFilter === '' || 
+      const nameMatch = filters.nameFilter === '' ||
         appointment.vehicle.toLowerCase().includes(filters.nameFilter.toLowerCase()) ||
         appointment.code.toLowerCase().includes(filters.nameFilter.toLowerCase());
-      
-      const serviceMatch = filters.serviceType === 'alle' || 
+
+      const serviceMatch = filters.serviceType === 'alle' ||
         appointment.type.includes(filters.serviceType);
-      
-      const mechanicMatch = filters.mechanic === 'alle' || 
+
+      const mechanicMatch = filters.mechanic === 'alle' ||
         appointment.mechanic === filters.mechanic;
-      
-      const statusMatch = filters.status === 'alle' || 
+
+      const statusMatch = filters.status === 'alle' ||
         appointment.status === filters.status;
 
       return nameMatch && serviceMatch && mechanicMatch && statusMatch;
@@ -104,16 +159,14 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
           <span className="manager-appointments-separator">/</span>
           <span>Afspraken</span>
         </div>
-        
         <div className="manager-appointments-user-info">
           <div className="manager-appointments-user-avatar"></div>
           <span className="manager-appointments-user-name">Edward robinson</span>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Filters */}
       <div className="manager-appointments-main-content">
-        {/* Filters Section */}
         <div className="manager-appointments-filters">
           <div className="manager-appointments-filters-row">
             {/* Name Filter */}
@@ -128,7 +181,7 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
               />
             </div>
 
-            {/* Service Type Filter */}
+            {/* Service Type */}
             <div className="manager-appointments-filter-group">
               <label className="manager-appointments-filter-label">Service type</label>
               <select
@@ -137,14 +190,12 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
                 className="manager-appointments-filter-select"
               >
                 {serviceTypes.map(type => (
-                  <option key={type} value={type}>
-                    {type === 'alle' ? 'Alle services' : type}
-                  </option>
+                  <option key={type} value={type}>{type === 'alle' ? 'Alle services' : type}</option>
                 ))}
               </select>
             </div>
 
-            {/* Mechanic Filter */}
+            {/* Mechanic */}
             <div className="manager-appointments-filter-group">
               <label className="manager-appointments-filter-label">Monteur</label>
               <select
@@ -152,15 +203,13 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
                 onChange={(e) => handleFilterChange('mechanic', e.target.value)}
                 className="manager-appointments-filter-select"
               >
-                {mechanics.map(mechanic => (
-                  <option key={mechanic} value={mechanic}>
-                    {mechanic === 'alle' ? 'Alle monteurs' : mechanic}
-                  </option>
+                {mechanics.map(m => (
+                  <option key={m} value={m}>{m === 'alle' ? 'Alle monteurs' : m}</option>
                 ))}
               </select>
             </div>
 
-            {/* Status Filter */}
+            {/* Status */}
             <div className="manager-appointments-filter-group">
               <label className="manager-appointments-filter-label">Status</label>
               <select
@@ -168,15 +217,13 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
                 onChange={(e) => handleFilterChange('status', e.target.value)}
                 className="manager-appointments-filter-select"
               >
-                {statusOptions.map(status => (
-                  <option key={status} value={status}>
-                    {status === 'alle' ? 'Alle statussen' : status}
-                  </option>
+                {statusOptions.map(s => (
+                  <option key={s} value={s}>{s === 'alle' ? 'Alle statussen' : s}</option>
                 ))}
               </select>
             </div>
 
-            {/* Date Range Filter */}
+            {/* Date Range */}
             <div className="manager-appointments-filter-group">
               <label className="manager-appointments-filter-label">Periode</label>
               <select
@@ -186,12 +233,10 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
               >
                 <option value="deze-week">Deze week</option>
                 <option value="volgende-week">Volgende week</option>
-                <option value="deze-maand">Deze maand</option>
-                <option value="aangepast">Aangepast bereik</option>
               </select>
             </div>
 
-            {/* Clear Filters Button */}
+            {/* Clear Filters */}
             <div className="manager-appointments-filter-group">
               <button
                 onClick={() => setFilters({
@@ -209,51 +254,37 @@ const statusOptions = ['alle', 'bezet', 'beschikbaar', 'afgerond', 'geannuleerd'
           </div>
         </div>
 
-        {/* Week View */}
+        {/* Week Grid */}
         <div className="manager-appointments-week-grid">
           {filteredWeekData.map((day, dayIndex) => (
             <div key={dayIndex} className="manager-appointments-day-column">
-              {/* Day Header */}
               <div className="manager-appointments-day-header">
                 <div className="manager-appointments-day-name">{day.day}</div>
                 <div className="manager-appointments-day-date">{day.date}</div>
               </div>
-
-              {/* Appointments List */}
               <div className="manager-appointments-day-content">
-                {day.appointments.map((appointment) => (
-                  <div
-                    key={appointment.id}
-                    className={`manager-appointments-appointment-card ${appointment.type.includes('Reparatie') ? 'repair' : 'apk'}`}
-                  >
+                {day.appointments.length === 0 && (
+                  <div className="manager-appointments-no-appointments">Geen afspraken</div>
+                )}
+                {day.appointments.map(a => (
+                  <div key={a.id} className={`manager-appointments-appointment-card ${a.type.includes('Reparatie') ? 'repair' : 'apk'}`}>
                     <div className="manager-appointments-appointment-header">
-                      <span className="manager-appointments-appointment-type">{appointment.type}</span>
-                      <span className="manager-appointments-appointment-time">{appointment.time}</span>
+                      <span className="manager-appointments-appointment-type">{a.type}</span>
+                      <span className="manager-appointments-appointment-time">{a.time}</span>
                     </div>
-                    
                     <div className="manager-appointments-appointment-status">
-                      <span className={`manager-appointments-status-badge ${appointment.status}`}>
-                        {appointment.status}
-                      </span>
-                      <span className="manager-appointments-appointment-code">{appointment.code}</span>
+                      <span className={`manager-appointments-status-badge ${a.status}`}>{a.status}</span>
+                      <span className="manager-appointments-appointment-code">{a.code}</span>
                     </div>
-                    
                     <div className="manager-appointments-appointment-vehicle">
                       <div className="manager-appointments-car-icon">🚗</div>
-                      <span className="manager-appointments-vehicle-name">{appointment.vehicle}</span>
+                      <span className="manager-appointments-vehicle-name">{a.vehicle}</span>
                     </div>
-
                     <div className="manager-appointments-appointment-mechanic">
-                      Monteur: {appointment.mechanic}
+                      Monteur: {a.mechanic}
                     </div>
                   </div>
                 ))}
-
-                {day.appointments.length === 0 && (
-                  <div className="manager-appointments-no-appointments">
-                    Geen afspraken
-                  </div>
-                )}
               </div>
             </div>
           ))}
